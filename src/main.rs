@@ -26,7 +26,7 @@ fn main() {
         std::fs::create_dir_all(&temp_dir).unwrap();
         log::log(&format!("+ Created temp at {:?}", temp_dir));
     } else {
-        log::log(&format!("+ Temp directory already exists at {:?}", temp_dir));
+        log::log(&format!("- Temp directory already exists at {:?}", temp_dir));
     }
 
     if let Some(file_path) = get_input_file_path() {
