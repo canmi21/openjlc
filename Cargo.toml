@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 chrono = "0.4"
 zip = "2.5"
+lazy_static = "1.4"
 
 [lib]
 name = "openjlc"
