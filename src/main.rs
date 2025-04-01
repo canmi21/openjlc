@@ -1,4 +1,4 @@
-use openjlc::config::{get_temp_dir, get_target_dir};
+use openjlc::config::{get_temp_dir, get_target_dir, check_and_download_rule_files};
 use openjlc::cli::get_input_file_path;
 use openjlc::log;
 use openjlc::extractor::extract_zip_to_temp;
@@ -20,7 +20,8 @@ fn eda_tool_to_str(tool: &EDATool) -> &'static str {
     }
 }
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let temp_dir = get_temp_dir();
     if !temp_dir.exists() {
         log::log("! Temp directory not found");
@@ -37,6 +38,11 @@ fn main() {
         log::log(&format!("+ Created target at {:?}", target_dir));
     } else {
         log::log(&format!("- Target directory already exists at {:?}", target_dir));
+    }
+
+    if let Err(e) = check_and_download_rule_files().await {
+        log::log(&format!("! Failed to download rule files: {}", e));
+        return;
     }
 
     if let Some(file_path) = get_input_file_path() {
