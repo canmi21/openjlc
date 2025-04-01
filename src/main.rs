@@ -14,7 +14,6 @@ fn main() {
 
     if let Some(file_path) = get_input_file_path() {
         log::log(&format!("> Processing file: {:?}", file_path));
-
     } else {
         log::log(&format!("! No valid file path provided"));
     }
