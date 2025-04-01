@@ -6,6 +6,7 @@ use openjlc::identifier::{identify_eda_files, EDATool};
 use lazy_static::lazy_static;
 use std::sync::Mutex;
 use openjlc::utils::{create_pcb_order_file, create_header_yaml};
+use openjlc::processor::process_files; // 导入 processor.rs 中的处理函数
 
 lazy_static! {
     static ref EDA_TOOL: Mutex<EDATool> = Mutex::new(EDATool::Unknown);
@@ -66,6 +67,10 @@ async fn main() {
 
                 if let Err(e) = create_header_yaml(&target_dir) {
                     log::log(&format!("! Failed to create header.yaml: {}", e));
+                }
+
+                if let Err(e) = process_files(&temp_dir, &target_dir, tool).await {
+                    log::log(&format!("! Failed to process files: {}", e));
                 }
             }
             Err(e) => log::log(&format!("! Failed to identify EDA file: {}", e)),

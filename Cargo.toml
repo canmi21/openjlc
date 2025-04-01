@@ -11,7 +11,7 @@ rand = "0.9"
 reqwest = { version = "0.12", features = ["blocking", "json"] }
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
-serde_yaml = "0.8"
+serde_yaml = "0.9"
 regex = "1"
 
 [lib]
