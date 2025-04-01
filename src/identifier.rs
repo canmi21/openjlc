@@ -6,6 +6,7 @@ use std::path::{Path, PathBuf};
 pub enum EDATool {
     Altium,
     KiCad,
+    LCEDA,
     Unknown,
 }
 
@@ -22,19 +23,23 @@ fn check_file_signature(path: &Path, keyword: &str) -> bool {
 }
 
 pub fn identify_eda_files(temp_dir: &Path) -> io::Result<(PathBuf, EDATool)> {
-    let altium_candidates = ["gto", "gtl", "gbl"];
-    let kicad_candidates = ["gto", "gtl", "gbl"];
+    let candidates = ["gto", "gtl", "gbl"];
 
     for entry in temp_dir.read_dir()? {
         if let Ok(entry) = entry {
             let path = entry.path();
             if let Some(ext) = path.extension().and_then(|s| s.to_str()) {
                 let ext_lower = ext.to_lowercase();
-                if altium_candidates.contains(&ext_lower.as_str()) && check_file_signature(&path, "Altium") {
-                    return Ok((path, EDATool::Altium));
-                }
-                if kicad_candidates.contains(&ext_lower.as_str()) && check_file_signature(&path, "KiCad") {
-                    return Ok((path, EDATool::KiCad));
+                if candidates.contains(&ext_lower.as_str()) {
+                    if check_file_signature(&path, "Altium") {
+                        return Ok((path, EDATool::Altium));
+                    }
+                    if check_file_signature(&path, "KiCad") {
+                        return Ok((path, EDATool::KiCad));
+                    }
+                    if check_file_signature(&path, "EasyEDA") {
+                        return Ok((path, EDATool::LCEDA));
+                    }
                 }
             }
         }

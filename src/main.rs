@@ -14,6 +14,7 @@ fn eda_tool_to_str(tool: &EDATool) -> &'static str {
     match tool {
         EDATool::Altium => "Altium",
         EDATool::KiCad => "KiCad",
+        EDATool::LCEDA => "LCEDA",
         EDATool::Unknown => "Unknown",
     }
 }
