@@ -1,4 +1,5 @@
 use openjlc::config::get_temp_dir;
+use openjlc::cli::get_input_file_path;
 use openjlc::log;
 
 fn main() {
@@ -9,5 +10,12 @@ fn main() {
         log::log(&format!("+ Created temp at {:?}", temp_dir));
     } else {
         log::log(&format!("+ Temp directory already exists at {:?}", temp_dir));
+    }
+
+    if let Some(file_path) = get_input_file_path() {
+        log::log(&format!("> Processing file: {:?}", file_path));
+
+    } else {
+        log::log(&format!("! No valid file path provided"));
     }
 }
