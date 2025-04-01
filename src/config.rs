@@ -1,4 +1,5 @@
 use std::env;
+use std::fs;
 use std::path::PathBuf;
 use reqwest;
 
@@ -17,16 +18,16 @@ pub fn get_rule_dir() -> PathBuf {
     PathBuf::from(home_dir).join(".canmi/openjlc/rule")
 }
 
-async fn download_rule_file(url: &str, dest_path: &std::path::Path) -> reqwest::Result<()> {
+async fn download_rule_file(url: &str, dest_path: &std::path::Path) -> Result<(), Box<dyn std::error::Error>> {
     let content = reqwest::get(url).await?.text().await?;
-    std::fs::write(dest_path, content)?;
+    fs::write(dest_path, content)?;
     Ok(())
 }
 
-pub async fn check_and_download_rule_files() -> Result<(), reqwest::Error> {
+pub async fn check_and_download_rule_files() -> Result<(), Box<dyn std::error::Error>> {
     let rule_dir = get_rule_dir();
     if !rule_dir.exists() {
-        std::fs::create_dir_all(&rule_dir)?;
+        fs::create_dir_all(&rule_dir)?;
     }
 
     let altium_path = rule_dir.join("altium_designer.yaml");
