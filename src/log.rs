@@ -16,9 +16,9 @@ fn get_log_file_path() -> PathBuf {
     log_dir.join(format!("{}.log", date))
 }
 
-fn log_message(level: &str, message: &str) {
-    let timestamp = Local::now().format("[%H:%M:%S]").to_string();
-    let formatted_message = format!("{} [{}] {}", timestamp, level, message);
+fn log_message(message: &str) {
+    let timestamp = Local::now().format("%H:%M:%S").to_string();
+    let formatted_message = format!("{} {}", timestamp, message);
 
     println!("{}", formatted_message);
 
@@ -27,14 +27,6 @@ fn log_message(level: &str, message: &str) {
     }
 }
 
-pub fn info(message: &str) {
-    log_message("INFO", message);
-}
-
-pub fn warn(message: &str) {
-    log_message("WARN", message);
-}
-
-pub fn error(message: &str) {
-    log_message("ERROR", message);
+pub fn log(message: &str) {
+    log_message(message);
 }
