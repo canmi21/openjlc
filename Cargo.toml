@@ -4,3 +4,11 @@ version = "2.0.1"
 edition = "2024"
 
 [dependencies]
+
+[lib]
+name = "openjlc"
+path = "src/lib.rs"
+
+[[bin]]
+name = "openjlc"
+path = "src/main.rs"
