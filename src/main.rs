@@ -5,6 +5,7 @@ use openjlc::extractor::extract_zip_to_temp;
 use openjlc::identifier::{identify_eda_files, EDATool};
 use lazy_static::lazy_static;
 use std::sync::Mutex;
+use openjlc::utils::{create_pcb_order_file, create_header_yaml};
 
 lazy_static! {
     static ref EDA_TOOL: Mutex<EDATool> = Mutex::new(EDATool::Unknown);
@@ -52,6 +53,14 @@ fn main() {
             Ok((gerber_file, tool)) => {
                 log::log(&format!("+ Identified {} Gerber file: {:?}", eda_tool_to_str(&tool), gerber_file));
                 *EDA_TOOL.lock().unwrap() = tool;
+
+                if let Err(e) = create_pcb_order_file(&target_dir) {
+                    log::log(&format!("! Failed to create PCB order file: {}", e));
+                }
+
+                if let Err(e) = create_header_yaml(&target_dir) {
+                    log::log(&format!("! Failed to create header.yaml: {}", e));
+                }
             }
             Err(e) => log::log(&format!("! Failed to identify EDA file: {}", e)),
         }

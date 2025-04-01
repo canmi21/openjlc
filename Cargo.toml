@@ -7,6 +7,7 @@ edition = "2024"
 chrono = "0.4"
 zip = "2.5"
 lazy_static = "1.4"
+rand = "0.9"
 
 [lib]
 name = "openjlc"
