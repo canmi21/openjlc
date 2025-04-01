@@ -2,7 +2,13 @@ use openjlc::config::get_temp_dir;
 use openjlc::cli::get_input_file_path;
 use openjlc::log;
 use openjlc::extractor::extract_zip_to_temp;
-use openjlc::identifier::identify_altium_files;
+use openjlc::identifier::{identify_eda_files, EDATool};
+use std::sync::Mutex;
+use lazy_static::lazy_static;
+
+lazy_static! {
+    static ref EDA_TOOL: Mutex<EDATool> = Mutex::new(EDATool::Unknown);
+}
 
 fn main() {
     let temp_dir = get_temp_dir();
@@ -24,9 +30,12 @@ fn main() {
 
         log::log(&format!("+ Successfully extracted zip file to {:?}", temp_dir));
 
-        match identify_altium_files(&temp_dir) {
-            Ok(gerber_file) => log::log(&format!("+ Identified Altium Gerber file: {:?}", gerber_file)),
-            Err(e) => log::log(&format!("! Failed to identify Altium file: {}", e)),
+        match identify_eda_files(&temp_dir) {
+            Ok((gerber_file, tool)) => {
+                log::log(&format!("+ Identified {:?} Gerber file: {:?}", tool, gerber_file));
+                *EDA_TOOL.lock().unwrap() = tool;
+            }
+            Err(e) => log::log(&format!("! Failed to identify EDA file: {}", e)),
         }
     } else {
         log::log(&format!("! No valid file path provided"));
