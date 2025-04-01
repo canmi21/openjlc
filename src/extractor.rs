@@ -1,6 +1,6 @@
 use std::fs::{create_dir_all, File};
-use std::io::{self, Read};
-use std::path::{Path, PathBuf};
+use std::io::{self};
+use std::path::{Path};
 use zip::read::ZipArchive;
 
 pub fn extract_zip_to_temp(temp_dir: &Path, zip_file: &Path) -> io::Result<()> {
