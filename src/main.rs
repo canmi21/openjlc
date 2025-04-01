@@ -5,19 +5,16 @@ use openjlc::extractor::extract_zip_to_temp;
 use openjlc::identifier::{identify_eda_files, EDATool};
 use lazy_static::lazy_static;
 use std::sync::Mutex;
-use std::fmt;
 
 lazy_static! {
     static ref EDA_TOOL: Mutex<EDATool> = Mutex::new(EDATool::Unknown);
 }
 
-impl fmt::Debug for EDATool {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", match self {
-            EDATool::Altium => "Altium",
-            EDATool::KiCad => "KiCad",
-            EDATool::Unknown => "Unknown",
-        })
+fn eda_tool_to_str(tool: &EDATool) -> &'static str {
+    match tool {
+        EDATool::Altium => "Altium",
+        EDATool::KiCad => "KiCad",
+        EDATool::Unknown => "Unknown",
     }
 }
 
@@ -43,7 +40,7 @@ fn main() {
 
         match identify_eda_files(&temp_dir) {
             Ok((gerber_file, tool)) => {
-                log::log(&format!("+ Identified {} Gerber file: {:?}", tool, gerber_file));
+                log::log(&format!("+ Identified {} Gerber file: {:?}", eda_tool_to_str(&tool), gerber_file));
                 *EDA_TOOL.lock().unwrap() = tool;
             }
             Err(e) => log::log(&format!("! Failed to identify EDA file: {}", e)),
