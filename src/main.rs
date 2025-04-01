@@ -1,4 +1,4 @@
-use openjlc::config::get_temp_dir;
+use openjlc::config::{get_temp_dir, get_target_dir};
 use openjlc::cli::get_input_file_path;
 use openjlc::log;
 use openjlc::extractor::extract_zip_to_temp;
@@ -27,6 +27,15 @@ fn main() {
         log::log(&format!("+ Created temp at {:?}", temp_dir));
     } else {
         log::log(&format!("- Temp directory already exists at {:?}", temp_dir));
+    }
+
+    let target_dir = get_target_dir();
+    if !target_dir.exists() {
+        log::log("! Target directory not found");
+        std::fs::create_dir_all(&target_dir).unwrap();
+        log::log(&format!("+ Created target at {:?}", target_dir));
+    } else {
+        log::log(&format!("- Target directory already exists at {:?}", target_dir));
     }
 
     if let Some(file_path) = get_input_file_path() {
