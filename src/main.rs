@@ -7,5 +7,7 @@ fn main() {
         log::log(&format!("! Temp directory not found"));
         std::fs::create_dir_all(&temp_dir).unwrap();
         log::log(&format!("+ Created temp at {:?}", temp_dir));
+    } else {
+        log::log(&format!("+ Temp directory already exists at {:?}", temp_dir));
     }
 }

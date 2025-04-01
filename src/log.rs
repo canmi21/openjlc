@@ -12,8 +12,8 @@ fn get_log_file_path() -> PathBuf {
         eprintln!("Permission Denied: {}", e);
     }
 
-    let date = Local::now().format("%Y-%m-%d").to_string();
-    log_dir.join(format!("{}.log", date))
+    let timestamp = Local::now().format("%Y-%m-%d-%H-%M-%S").to_string();
+    log_dir.join(format!("{}.log", timestamp))
 }
 
 fn log_message(message: &str) {
