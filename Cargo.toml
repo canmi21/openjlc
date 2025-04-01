@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 chrono = "0.4"
+zip = "0.5"
 
 [lib]
 name = "openjlc"
