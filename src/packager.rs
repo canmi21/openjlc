@@ -5,7 +5,7 @@ use crate::config::get_target_dir;
 use crate::cli::get_input_file_path;
 use crate::log;
 
-pub fn package_target_dir() {
+pub fn package_target_dir(eda_type: &str) {
     let target_dir = get_target_dir();
     let header_path = target_dir.join("header.yaml");
     if header_path.exists() {
@@ -14,7 +14,7 @@ pub fn package_target_dir() {
 
     let input_path = get_input_file_path().unwrap();
     let input_file_name = input_path.file_stem().unwrap().to_string_lossy();
-    let output_zip_name = format!("{}_openjlc.zip", input_file_name);
+    let output_zip_name = format!("{}_{}.zip", input_file_name, eda_type);
     let output_path = input_path.parent().unwrap().join(output_zip_name);
 
     let file = File::create(&output_path).unwrap();

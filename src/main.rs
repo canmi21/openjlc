@@ -72,6 +72,15 @@ async fn main() {
                     log::log(&format!("! Failed to create header.yaml: {}", e));
                 }
 
+                let eda_type = match tool {
+                    EDATool::Altium => "AD",
+                    EDATool::KiCad => "Ki",
+                    _ => {
+                        log::log("! Unsupported EDA tool, exiting");
+                        std::process::exit(0);
+                    }
+                };
+
                 match tool {
                     EDATool::Altium => {
                         if let Err(e) = process_files_with_rule("altium_designer.yaml") {
@@ -83,15 +92,12 @@ async fn main() {
                             log::log(&format!("! KiCad processing failed: {}", e));
                         }
                     }
-                    _ => {
-                        log::log("! Unsupported EDA tool, exiting");
-                        std::process::exit(0);
-                    }
+                    _ => {}
                 }
                 
                 validate_target_directory();
                 inject_headers();
-                package_target_dir();
+                package_target_dir(eda_type);
             }
             Err(e) => {
                 if !e.to_string().is_empty() {
