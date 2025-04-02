@@ -8,32 +8,20 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        target: [x86_64-unknown-linux-gnu, aarch64-unknown-linux-gnu, x86_64-pc-windows-msvc, aarch64-pc-windows-msvc, x86_64-apple-darwin, aarch64-apple-darwin]
+        target: [x86_64-unknown-linux-gnu, x86_64-pc-windows-msvc, aarch64-apple-darwin]
         exclude:
           - os: ubuntu-latest
             target: x86_64-pc-windows-msvc
           - os: ubuntu-latest
-            target: aarch64-pc-windows-msvc
-          - os: ubuntu-latest
-            target: x86_64-apple-darwin
-          - os: ubuntu-latest
             target: aarch64-apple-darwin
           - os: windows-latest
             target: x86_64-unknown-linux-gnu
           - os: windows-latest
-            target: aarch64-unknown-linux-gnu
-          - os: windows-latest
-            target: x86_64-apple-darwin
-          - os: windows-latest
             target: aarch64-apple-darwin
           - os: macos-latest
             target: x86_64-unknown-linux-gnu
-          - os: macos-latest
-            target: aarch64-unknown-linux-gnu
           - os: macos-latest
             target: x86_64-pc-windows-msvc
-          - os: macos-latest
-            target: aarch64-pc-windows-msvc
 
     runs-on: ${{ matrix.os }}
 
@@ -41,13 +29,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: main
-
-      - name: Install dependencies (Ubuntu)
-        if: matrix.os == 'ubuntu-latest'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libssl-dev gcc-aarch64-linux-gnu
-          rustup target add aarch64-unknown-linux-gnu
 
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
@@ -82,8 +63,5 @@ jobs:
           tag_name: v${{ github.run_number }}
           files: |
             artifacts/openjlc-x86_64-unknown-linux-gnu/openjlc-x86_64-unknown-linux-gnu
-            artifacts/openjlc-aarch64-unknown-linux-gnu/openjlc-aarch64-unknown-linux-gnu
             artifacts/openjlc-x86_64-pc-windows-msvc/openjlc-x86_64-pc-windows-msvc.exe
-            artifacts/openjlc-aarch64-pc-windows-msvc/openjlc-aarch64-pc-windows-msvc.exe
-            artifacts/openjlc-x86_64-apple-darwin/openjlc-x86_64-apple-darwin
             artifacts/openjlc-aarch64-apple-darwin/openjlc-aarch64-apple-darwin
