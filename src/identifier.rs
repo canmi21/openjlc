@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::{Path, PathBuf};
+use crate::log;
 
 #[derive(Debug, Clone, Copy)]
 pub enum EDATool {
@@ -57,7 +58,8 @@ pub fn identify_eda_files(temp_dir: &Path) -> io::Result<(PathBuf, EDATool)> {
                         return Ok((path, EDATool::LCEDA));
                     }
                     if keywords.iter().any(|&kw| check_file_signature(&path, kw)) {
-                        return Err(io::Error::new(io::ErrorKind::InvalidData, "! File appears to have been injected"));
+                        log::log("! File appears to have been injected");
+                        return Err(io::Error::new(io::ErrorKind::InvalidData, ""));
                     }
                 }
             }
