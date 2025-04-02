@@ -1,0 +1,86 @@
+name: Rust CI
+
+on:
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Rust
+      uses: actions/setup-rust@v1
+      with:
+        rust-version: stable
+
+    - name: Build for Linux (x86_64)
+      run: cargo build --release --target x86_64-unknown-linux-gnu
+
+    - name: Build for Linux (ARM)
+      run: cargo build --release --target aarch64-unknown-linux-gnu
+
+    - name: Build for Windows (x86_64)
+      run: cargo build --release --target x86_64-pc-windows-msvc
+
+    - name: Build for macOS (x86_64)
+      run: cargo build --release --target x86_64-apple-darwin
+
+    - name: Build for macOS (ARM)
+      run: cargo build --release --target aarch64-apple-darwin
+
+    - name: Upload Linux (x86_64) release binary
+      uses: actions/upload-artifact@v2
+      with:
+        name: openjlc-linux-x86_64
+        path: target/x86_64-unknown-linux-gnu/release/openjlc
+
+    - name: Upload Linux (ARM) release binary
+      uses: actions/upload-artifact@v2
+      with:
+        name: openjlc-linux-arm
+        path: target/aarch64-unknown-linux-gnu/release/openjlc
+
+    - name: Upload Windows release binary
+      uses: actions/upload-artifact@v2
+      with:
+        name: openjlc-windows
+        path: target/x86_64-pc-windows-msvc/release/openjlc.exe
+
+    - name: Upload macOS (x86_64) release binary
+      uses: actions/upload-artifact@v2
+      with:
+        name: openjlc-macos-x86_64
+        path: target/x86_64-apple-darwin/release/openjlc
+
+    - name: Upload macOS (ARM) release binary
+      uses: actions/upload-artifact@v2
+      with:
+        name: openjlc-macos-arm
+        path: target/aarch64-apple-darwin/release/openjlc
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Create GitHub Release
+      id: create_release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          target/x86_64-unknown-linux-gnu/release/openjlc
+          target/aarch64-unknown-linux-gnu/release/openjlc
+          target/x86_64-pc-windows-msvc/release/openjlc.exe
+          target/x86_64-apple-darwin/release/openjlc
+          target/aarch64-apple-darwin/release/openjlc
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
