@@ -44,6 +44,46 @@ pub fn validate_target_directory() -> bool {
         }
     }
 
+    for file in &files {
+        if file.starts_with("Gerber_TopLayer") {
+            if !files.iter().any(|f| f.starts_with("Gerber_TopSolderMaskLayer")) {
+                log::log("! Missing Gerber_TopSolderMaskLayer");
+            }
+            if !files.iter().any(|f| f.starts_with("Gerber_TopSilkscreenLayer")) {
+                log::log("! Missing Gerber_TopSilkscreenLayer");
+            }
+            if !files.iter().any(|f| f.starts_with("Gerber_TopPasteMaskLayer")) {
+                log::log("! Missing Gerber_TopPasteMaskLayer, consider checking it");
+            }
+        }
+
+        if file.starts_with("Gerber_BottomLayer") {
+            if !files.iter().any(|f| f.starts_with("Gerber_BottomSolderMaskLayer")) {
+                log::log("! Missing Gerber_BottomSolderMaskLayer");
+            }
+            if !files.iter().any(|f| f.starts_with("Gerber_BottomSilkscreenLayer")) {
+                log::log("! Missing Gerber_BottomSilkscreenLayer");
+            }
+            if !files.iter().any(|f| f.starts_with("Gerber_BottomPasteMaskLayer")) {
+                log::log("! Missing Gerber_BottomPasteMaskLayer, consider checking it");
+            }
+        }
+
+        if file.starts_with("Gerber_InnerLayer") {
+            let layer_number: Option<u32> = file
+                .strip_prefix("Gerber_InnerLayer")
+                .and_then(|s| s.parse().ok());
+            if let Some(n) = layer_number {
+                if n < 10 {
+                    let next_layer = format!("Gerber_InnerLayer{}", n + 1);
+                    if !files.iter().any(|f| f.starts_with(&next_layer)) {
+                        log::log(&format!("! Missing {}, consider checking it", next_layer));
+                    }
+                }
+            }
+        }
+    }
+
     if missing_files.is_empty() {
         log::log("- Basic structure validation passed");
         true
