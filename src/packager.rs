@@ -26,7 +26,7 @@ pub fn package_target_dir() {
         let name = path.file_name().unwrap().to_string_lossy();
 
         if path.is_file() {
-            let options = FileOptions::default().compression_method(zip::CompressionMethod::Deflated);
+            let options = FileOptions::<()>::default().compression_method(zip::CompressionMethod::Deflated);
             zip.start_file(name.to_string(), options).unwrap();
             let mut f = File::open(path).unwrap();
             std::io::copy(&mut f, &mut zip).unwrap();
