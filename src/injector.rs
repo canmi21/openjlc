@@ -1,6 +1,7 @@
 use std::fs;
 use fancy_regex::Regex;
 use crate::config::get_target_dir;
+use crate::error::report_error;
 use crate::log;
 
 pub fn inject_headers() {
@@ -8,14 +9,14 @@ pub fn inject_headers() {
     let header_path = target_dir.join("header.yaml");
     if !header_path.exists() {
         log::log("! header.yaml not found");
-        std::process::exit(0);
+        report_error();
     }
 
     let header_content = match fs::read_to_string(&header_path) {
         Ok(content) => content.lines().skip(1).map(|line| line.trim_start()).collect::<Vec<_>>().join("\n") + "\n",
         Err(e) => {
             log::log(&format!("! Failed to read header.yaml: {}", e));
-            std::process::exit(0);
+            report_error();
         }
     };
 
@@ -51,6 +52,7 @@ pub fn inject_headers() {
 
         if let Err(e) = fs::write(&path, modified_content) {
             log::log(&format!("! Failed to inject header into {:?}: {}", path, e));
+            report_error();
         } else {
             log::log(&format!("> Inject '{:?}'", path));
         }

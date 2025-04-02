@@ -1,6 +1,7 @@
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::{Path, PathBuf};
+use crate::error::report_error;
 use crate::log;
 
 #[derive(Debug, Clone, Copy)]
@@ -64,6 +65,7 @@ pub fn identify_eda_files(temp_dir: &Path) -> io::Result<(PathBuf, EDATool)> {
                         return Err(io::Error::new(io::ErrorKind::InvalidData, ""));
                     } else {
                         log::log("- No valid EDA signature found");
+                        report_error();
                         return Err(io::Error::new(io::ErrorKind::NotFound, ""));
                     }
                 }
@@ -71,5 +73,6 @@ pub fn identify_eda_files(temp_dir: &Path) -> io::Result<(PathBuf, EDATool)> {
         }
     }
     log::log("- No valid EDA signature found");
+    report_error();
     Err(io::Error::new(io::ErrorKind::NotFound, ""))
 }

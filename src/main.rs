@@ -11,7 +11,7 @@ use openjlc::validator::validate_target_directory;
 use openjlc::injector::inject_headers;
 use openjlc::packager::package_target_dir;
 use openjlc::cleaner::clear_directories;
-use openjlc::reporter::generate_report;
+use openjlc::error::report_error;
 
 lazy_static! {
     static ref EDA_TOOL: Mutex<EDATool> = Mutex::new(EDATool::Unknown);
@@ -23,12 +23,6 @@ fn eda_tool_to_str(tool: &EDATool) -> &'static str {
         EDATool::KiCad => "KiCad",
         EDATool::LCEDA => "LCEDA",
         EDATool::Unknown => "Unknown",
-    }
-}
-
-pub fn report_error() {
-    if let Some(file_path) = get_input_file_path() {
-        generate_report(file_path);
     }
 }
 
@@ -97,6 +91,7 @@ async fn main() {
                     _ => {
                         log::log("! Unsupported EDA tool, exiting");
                         report_error();
+                        "Unknown"
                     }
                 };
 

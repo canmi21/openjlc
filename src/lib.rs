@@ -10,3 +10,4 @@ pub mod packager;
 pub mod cleaner;
 pub mod reporter;
 pub mod utils;
+pub mod error;

@@ -1,5 +1,6 @@
 use std::fs;
 use crate::config::get_target_dir;
+use crate::error::report_error;
 use crate::log;
 
 const REQUIRED_FILES: &[&str] = &[
@@ -19,6 +20,7 @@ pub fn validate_target_directory() -> bool {
     let target_dir = get_target_dir();
     if !target_dir.exists() {
         log::log(&format!("! Target directory not found: {:?}", target_dir));
+        report_error();
         return false;
     }
 
@@ -28,6 +30,7 @@ pub fn validate_target_directory() -> bool {
             .collect(),
         Err(e) => {
             log::log(&format!("! Failed to read target directory: {}", e));
+            report_error();
             return false;
         }
     };
@@ -83,7 +86,7 @@ pub fn validate_target_directory() -> bool {
 
     if has_top_copper && inner_layer_count >= 1 && !has_bottom_copper {
         log::log("! Missing Bottom Copper layer due to Top Copper and Inner Layer presence");
-        std::process::exit(0);
+        report_error();
     }
 
     let mut layer_count = 0;
@@ -106,6 +109,7 @@ pub fn validate_target_directory() -> bool {
         for msg in missing_files {
             log::log(&msg);
         }
+        report_error();
         false
     }
 }
