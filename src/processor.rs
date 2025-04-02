@@ -50,7 +50,7 @@ pub fn process_files_with_rule(yaml_name: &str) -> Result<(), Box<dyn Error>> {
                 
                 let dest_path = target_dir.join(dest_name);
                 fs::copy(&src_path, &dest_path)?;
-                log::log(&format!("+ '{}' -> '{}'", 
+                log::log(&format!("+ Linked '{}' -> '{}'", 
                     src_path.file_name().unwrap().to_str().unwrap(),
                     dest_path.display()));
             }
