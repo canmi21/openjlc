@@ -35,6 +35,10 @@ pub fn process_files_with_rule(yaml_name: &str) -> Result<(), Box<dyn Error>> {
             }
         }
 
+        if found_paths.len() > 1 {
+            return Err(format!("! Regex pattern '{}' matched multiple files: {:?}", pattern, found_paths).into());
+        }
+
         if !found_paths.is_empty() {
             let name_clone = name.clone();
             for src_path in found_paths {
