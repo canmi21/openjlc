@@ -3,6 +3,7 @@ use openjlc::cli::get_input_file_path;
 use openjlc::log;
 use openjlc::extractor::extract_zip_to_temp;
 use openjlc::identifier::{identify_eda_files, EDATool};
+use openjlc::processor::process_rule_yaml;
 use lazy_static::lazy_static;
 use std::sync::Mutex;
 use openjlc::utils::{create_pcb_order_file, create_header_yaml};
@@ -59,6 +60,16 @@ async fn main() {
             Ok((gerber_file, tool)) => {
                 log::log(&format!("+ Identified {} Gerber file: {:?}", eda_tool_to_str(&tool), gerber_file));
                 *EDA_TOOL.lock().unwrap() = tool;
+
+                match *EDA_TOOL.lock().unwrap() {
+                    EDATool::Altium => process_rule_yaml("altium_designer.yaml").unwrap(),
+                    EDATool::KiCad => process_rule_yaml("kicad.yaml").unwrap(),
+                    EDATool::LCEDA => {
+                        log::log("! LCEDA tool detected, stopping further processing.");
+                        return;
+                    }
+                    _ => log::log("! Unknown EDA tool detected, skipping rule processing."),
+                }
 
                 if let Err(e) = create_pcb_order_file(&target_dir) {
                     log::log(&format!("! Failed to create PCB order file: {}", e));
