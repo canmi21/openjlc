@@ -6,7 +6,7 @@ use openjlc::identifier::{identify_eda_files, EDATool};
 use lazy_static::lazy_static;
 use std::sync::Mutex;
 use openjlc::utils::{create_pcb_order_file, create_header_yaml};
-use openjlc::processor::process_rule_file;
+use openjlc::processor::process_files_with_rule;
 
 lazy_static! {
     static ref EDA_TOOL: Mutex<EDATool> = Mutex::new(EDATool::Unknown);
@@ -78,12 +78,25 @@ async fn main() {
                     }
                 };
 
-                if let Err(e) = process_rule_file(rule_file) {
-                    log::log(&format!("! Failed to process rule file: {}", e));
-                }
             }
             Err(e) => log::log(&format!("! Failed to identify EDA file: {}", e)),
         }
+
+        match tool {
+            EDATool::Altium => {
+                if let Err(e) = process_files_with_rule("altium_designer.yaml") {
+                    log::log(&format!("! Altium processing failed: {}", e));
+                }
+            }
+            EDATool::KiCad => {
+                if let Err(e) = process_files_with_rule("kicad.yaml") {
+                    log::log(&format!("! KiCad processing failed: {}", e));
+                }
+            }
+            EDATool::LCEDA => log::log("- Skipping LCEDA processing"),
+            EDATool::Unknown => log::log("! Unknown EDA tool, skipping processing"),
+        }
+
     } else {
         log::log("! No valid file path provided");
     }
