@@ -22,8 +22,24 @@ fn check_file_signature(path: &Path, keyword: &str) -> bool {
     false
 }
 
+fn has_no_exclusion(path: &Path, excludes: &[&str]) -> bool {
+    if let Ok(file) = File::open(path) {
+        let reader = io::BufReader::new(file);
+        return !reader
+            .lines()
+            .take(100)
+            .filter_map(|line| line.ok())
+            .any(|line| {
+                let line_lower = line.to_lowercase();
+                excludes.iter().any(|&ex| line_lower.contains(&ex.to_lowercase()))
+            });
+    }
+    true
+}
+
 pub fn identify_eda_files(temp_dir: &Path) -> io::Result<(PathBuf, EDATool)> {
     let candidates = ["gto", "gtl", "gbl"];
+    let keywords = ["Altium", "KiCad", "EasyEDA", "OpenJLC"];
 
     for entry in temp_dir.read_dir()? {
         if let Ok(entry) = entry {
@@ -31,14 +47,17 @@ pub fn identify_eda_files(temp_dir: &Path) -> io::Result<(PathBuf, EDATool)> {
             if let Some(ext) = path.extension().and_then(|s| s.to_str()) {
                 let ext_lower = ext.to_lowercase();
                 if candidates.contains(&ext_lower.as_str()) {
-                    if check_file_signature(&path, "Altium") {
+                    if check_file_signature(&path, "Altium") && has_no_exclusion(&path, &["EasyEDA", "OpenJLC"]) {
                         return Ok((path, EDATool::Altium));
                     }
-                    if check_file_signature(&path, "KiCad") {
+                    if check_file_signature(&path, "KiCad") && has_no_exclusion(&path, &["EasyEDA", "OpenJLC"]) {
                         return Ok((path, EDATool::KiCad));
                     }
-                    if check_file_signature(&path, "EasyEDA") {
+                    if check_file_signature(&path, "EasyEDA") && has_no_exclusion(&path, &["KiCad", "Altium", "OpenJLC"]) {
                         return Ok((path, EDATool::LCEDA));
+                    }
+                    if keywords.iter().any(|&kw| check_file_signature(&path, kw)) {
+                        return Err(io::Error::new(io::ErrorKind::InvalidData, "! File appears to have been injected"));
                     }
                 }
             }
