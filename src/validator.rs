@@ -13,6 +13,8 @@ const REQUIRED_PREFIXES: &[&str] = &[
     "Gerber_TopSolderMaskLayer",
 ];
 
+pub static mut LAYER_COUNT: u32 = 0;
+
 pub fn validate_target_directory() -> bool {
     let target_dir = get_target_dir();
     if !target_dir.exists() {
@@ -31,6 +33,9 @@ pub fn validate_target_directory() -> bool {
     };
 
     let mut missing_files = Vec::new();
+    let mut has_top_copper = false;
+    let mut has_bottom_copper = false;
+    let mut has_inner_layer_1 = false;
 
     for &required in REQUIRED_FILES {
         if !files.iter().any(|f| f == required) {
@@ -46,6 +51,7 @@ pub fn validate_target_directory() -> bool {
 
     for file in &files {
         if file.starts_with("Gerber_TopLayer") {
+            has_top_copper = true;
             if !files.iter().any(|f| f.starts_with("Gerber_TopSolderMaskLayer")) {
                 log::log("! Missing Gerber_TopSolderMaskLayer");
             }
@@ -58,6 +64,7 @@ pub fn validate_target_directory() -> bool {
         }
 
         if file.starts_with("Gerber_BottomLayer") {
+            has_bottom_copper = true;
             if !files.iter().any(|f| f.starts_with("Gerber_BottomSolderMaskLayer")) {
                 log::log("! Missing Gerber_BottomSolderMaskLayer");
             }
@@ -81,7 +88,16 @@ pub fn validate_target_directory() -> bool {
                     }
                 }
             }
+
+            unsafe {
+                LAYER_COUNT += 1;
+            }
         }
+    }
+
+    if has_top_copper && has_inner_layer_1 && !has_bottom_copper {
+        log::log("! Missing Bottom Copper layer due to Top Copper and Inner Layer 1 presence");
+        std::process::exit(0);
     }
 
     if missing_files.is_empty() {

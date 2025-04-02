@@ -4,6 +4,7 @@ use zip::write::{FileOptions, ZipWriter};
 use crate::config::get_target_dir;
 use crate::cli::get_input_file_path;
 use crate::log;
+use crate::validator::LAYER_COUNT;
 
 pub fn package_target_dir(eda_type: &str) {
     let target_dir = get_target_dir();
@@ -14,7 +15,7 @@ pub fn package_target_dir(eda_type: &str) {
 
     let input_path = get_input_file_path().unwrap();
     let input_file_name = input_path.file_stem().unwrap().to_string_lossy();
-    let output_zip_name = format!("{}_{}.zip", input_file_name, eda_type);
+    let output_zip_name = format!("{}_{}_L{}.zip", input_file_name, eda_type, unsafe { LAYER_COUNT });
     let output_path = input_path.parent().unwrap().join(output_zip_name);
 
     let file = File::create(&output_path).unwrap();
