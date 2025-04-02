@@ -56,7 +56,7 @@ pub fn inject_headers() {
             log::log(&format!("! Failed to inject header into {:?}: {}", path, e));
             report_error();
         } else {
-            log::log(&format!("> Inject '{:?}'", path));
+            log::log(&format!("> Inject {:?}", path));
         }
     }
 }
