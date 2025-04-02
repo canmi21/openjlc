@@ -40,14 +40,16 @@ fn has_no_exclusion(path: &Path, excludes: &[&str]) -> bool {
 
 pub fn identify_eda_files(temp_dir: &Path) -> io::Result<(PathBuf, EDATool)> {
     let candidates = ["gto", "gtl", "gbl"];
+    let kicad_names = ["Edge_Cuts", "F_Cu", "F_Mask"];
     let keywords = ["Altium", "KiCad", "EasyEDA", "OpenJLC"];
 
     for entry in temp_dir.read_dir()? {
         if let Ok(entry) = entry {
             let path = entry.path();
+            let file_name = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
             if let Some(ext) = path.extension().and_then(|s| s.to_str()) {
                 let ext_lower = ext.to_lowercase();
-                if candidates.contains(&ext_lower.as_str()) {
+                if candidates.contains(&ext_lower.as_str()) || kicad_names.iter().any(|&name| file_name.contains(name)) {
                     if check_file_signature(&path, "Altium") && has_no_exclusion(&path, &["EasyEDA", "OpenJLC"]) {
                         return Ok((path, EDATool::Altium));
                     }
