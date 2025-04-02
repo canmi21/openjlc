@@ -7,6 +7,7 @@ use lazy_static::lazy_static;
 use std::sync::Mutex;
 use openjlc::utils::{create_pcb_order_file, create_header_yaml};
 use openjlc::processor::process_files_with_rule;
+use openjlc::validator::validate_target_directory;
 
 lazy_static! {
     static ref EDA_TOOL: Mutex<EDATool> = Mutex::new(EDATool::Unknown);
@@ -80,9 +81,13 @@ async fn main() {
                             log::log(&format!("! KiCad processing failed: {}", e));
                         }
                     }
-                    EDATool::LCEDA => log::log("- Skipping LCEDA processing"),
-                    EDATool::Unknown => log::log("! Unknown EDA tool, skipping processing"),
+                    _ => {
+                        log::log("! Unsupported EDA tool, exiting");
+                        std::process::exit(0);
+                    }
                 }
+                
+                validate_target_directory();
             }
             Err(e) => {
                 if !e.to_string().is_empty() {
