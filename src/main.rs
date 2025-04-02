@@ -1,10 +1,10 @@
-use openjlc::config::{get_temp_dir, get_target_dir, check_and_download_rule_files};
-use openjlc::cli::get_input_file_path;
 use openjlc::log;
+use std::sync::Mutex;
+use lazy_static::lazy_static;
+use openjlc::cli::get_input_file_path;
+use openjlc::config::{get_temp_dir, get_target_dir, check_and_download_rule_files};
 use openjlc::extractor::extract_zip_to_temp;
 use openjlc::identifier::{identify_eda_files, EDATool};
-use lazy_static::lazy_static;
-use std::sync::Mutex;
 use openjlc::utils::{create_pcb_order_file, create_header_yaml};
 use openjlc::processor::process_files_with_rule;
 use openjlc::validator::validate_target_directory;
