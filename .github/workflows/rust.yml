@@ -1,55 +1,79 @@
 name: Rust CI
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
-  build:
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        target: [x86_64-unknown-linux-gnu, x86_64-pc-windows-msvc, aarch64-apple-darwin]
-        exclude:
-          - os: ubuntu-latest
-            target: x86_64-pc-windows-msvc
-          - os: ubuntu-latest
-            target: aarch64-apple-darwin
-          - os: windows-latest
-            target: x86_64-unknown-linux-gnu
-          - os: windows-latest
-            target: aarch64-apple-darwin
-          - os: macos-latest
-            target: x86_64-unknown-linux-gnu
-          - os: macos-latest
-            target: x86_64-pc-windows-msvc
-
-    runs-on: ${{ matrix.os }}
-
+  check-version:
+    runs-on: ubuntu-latest
+    outputs:
+      should_build: ${{ steps.compare.outputs.should_build }}
+      version: ${{ steps.parse.outputs.version }}
     steps:
       - uses: actions/checkout@v4
+      - name: Parse Cargo.toml version
+        id: parse
+        run: echo "version=$(grep '^version' Cargo.toml | cut -d'"' -f2)" >> $GITHUB_OUTPUT
+      - name: Get latest release
+        id: latest
+        uses: actions/github-script@v7
         with:
-          ref: main
+          result-encoding: string
+          script: |
+            const releases = await github.rest.repos.listReleases({
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+            return releases.data.length > 0 ? releases.data[0].tag_name : 'none';
+      - name: Compare versions
+        id: compare
+        run: |
+          if [ "${{ steps.latest.outputs.result }}" == "v${{ steps.parse.outputs.version }}" ]; then
+            echo "should_build=false" >> $GITHUB_OUTPUT
+          else
+            echo "should_build=true" >> $GITHUB_OUTPUT
+          fi
 
+  build:
+    needs: check-version
+    if: needs.check-version.outputs.should_build == 'true'
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - os: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+          - os: windows-latest
+            target: i686-pc-windows-msvc
+          - os: macos-latest
+            target: x86_64-apple-darwin
+          - os: macos-latest
+            target: aarch64-apple-darwin
+      max-parallel: 3
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
-
-      - name: Build
-        run: cargo build --release --target ${{ matrix.target }}
-
-      - name: Package (Unix)
+      - name: Build (Unix)
         if: matrix.os != 'windows-latest'
         run: |
+          cargo build --release --target ${{ matrix.target }}
           mkdir -p artifacts
           cp target/${{ matrix.target }}/release/openjlc artifacts/openjlc-${{ matrix.target }}
-
-      - name: Package (Windows)
+      - name: Build (Windows)
         if: matrix.os == 'windows-latest'
         run: |
+          cargo build --release --target ${{ matrix.target }}
           mkdir artifacts
           copy target\${{ matrix.target }}\release\openjlc.exe artifacts\openjlc-${{ matrix.target }}.exe
-
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -63,12 +87,14 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
-
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ github.run_number }}
+          tag_name: v${{ needs.check-version.outputs.version }}
           files: |
             artifacts/openjlc-x86_64-unknown-linux-gnu/openjlc-x86_64-unknown-linux-gnu
+            artifacts/openjlc-aarch64-unknown-linux-gnu/openjlc-aarch64-unknown-linux-gnu
             artifacts/openjlc-x86_64-pc-windows-msvc/openjlc-x86_64-pc-windows-msvc.exe
+            artifacts/openjlc-i686-pc-windows-msvc/openjlc-i686-pc-windows-msvc.exe
+            artifacts/openjlc-x86_64-apple-darwin/openjlc-x86_64-apple-darwin
             artifacts/openjlc-aarch64-apple-darwin/openjlc-aarch64-apple-darwin
