@@ -10,6 +10,7 @@ pub fn inject_headers() {
     if !header_path.exists() {
         log::log("! header.yaml not found");
         report_error();
+        return;
     }
 
     let header_content = match fs::read_to_string(&header_path) {
@@ -17,6 +18,7 @@ pub fn inject_headers() {
         Err(e) => {
             log::log(&format!("! Failed to read header.yaml: {}", e));
             report_error();
+            return;
         }
     };
 
