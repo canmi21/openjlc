@@ -12,12 +12,21 @@ jobs:
       should_build: ${{ steps.compare.outputs.should_build }}
       version: ${{ steps.parse.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: main
+      - name: Sparse clone repository
+        run: |
+          git init repo
+          cd repo
+          git remote add origin https://github.com/canmi21/openjlc.git
+          git config core.sparseCheckout true
+          echo "Cargo.toml" > .git/info/sparse-checkout
+          git pull origin main --depth=1
       - name: Parse Cargo.toml version
         id: parse
-        run: echo "version=$(grep '^version' Cargo.toml | cut -d'"' -f2)" >> $GITHUB_OUTPUT
+        run: echo "version=$(grep '^version' repo/Cargo.toml | cut -d'"' -f2)" >> $GITHUB_OUTPUT
+      - name: Print version
+        run: "echo 'Parsed Cargo.toml version: $VERSION'"
+        env:
+          VERSION: ${{ steps.parse.outputs.version }}
       - name: Get latest release
         id: latest
         uses: actions/github-script@v7
@@ -25,8 +34,8 @@ jobs:
           result-encoding: string
           script: |
             const releases = await github.rest.repos.listReleases({
-              owner: context.repo.owner,
-              repo: context.repo.repo
+              owner: 'canmi21',
+              repo: 'openjlc'
             });
             return releases.data.length > 0 ? releases.data[0].tag_name : 'none';
       - name: Compare versions
@@ -88,9 +97,7 @@ jobs:
             target: x86_64-apple-darwin
           - os: macos-latest
             target: aarch64-apple-darwin
-          - os: windows-latest
-            target: aarch64-windows-msvc
-      max-parallel: 3
+      max-parallel: 2
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -100,18 +107,11 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
-      - name: Build (Unix)
-        if: matrix.os != 'windows-latest'
+      - name: Build
         run: |
           cargo build --release --target ${{ matrix.target }}
           mkdir -p artifacts
           cp target/${{ matrix.target }}/release/openjlc artifacts/openjlc-${{ matrix.target }}
-      - name: Build (Windows)
-        if: matrix.os == 'windows-latest'
-        run: |
-          cargo build --release --target ${{ matrix.target }}
-          mkdir artifacts
-          copy target\${{ matrix.target }}\release\openjlc.exe artifacts\openjlc-${{ matrix.target }}.exe
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -136,4 +136,3 @@ jobs:
             artifacts/openjlc-i686-windows-msvc/openjlc-i686-windows-msvc.exe
             artifacts/openjlc-x86_64-apple-darwin/openjlc-x86_64-apple-darwin
             artifacts/openjlc-aarch64-apple-darwin/openjlc-aarch64-apple-darwin
-            artifacts/openjlc-aarch64-windows-msvc/openjlc-aarch64-windows-msvc.exe
