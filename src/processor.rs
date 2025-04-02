@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 use std::error::Error;
 use std::fs;
-use regex::RegexBuilder;
+use fancy_regex::RegexBuilder;
 use serde_yaml;
 use crate::log;
 use crate::config::{get_rule_dir, get_temp_dir, get_target_dir};
@@ -28,7 +28,7 @@ pub fn process_files_with_rule(yaml_name: &str) -> Result<(), Box<dyn Error>> {
             let path = entry.path();
             if path.is_file() {
                 if let Some(file_name) = path.file_name().and_then(|n| n.to_str()) {
-                    if regex.is_match(file_name) {
+                    if regex.is_match(file_name)? {
                         found_paths.push(path);
                     }
                 }
