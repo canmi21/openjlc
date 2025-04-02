@@ -24,9 +24,7 @@ jobs:
         id: parse
         run: echo "version=$(grep '^version' repo/Cargo.toml | cut -d'"' -f2)" >> $GITHUB_OUTPUT
       - name: Print version
-        run: "echo 'Parsed Cargo.toml version: $VERSION'"
-        env:
-          VERSION: ${{ steps.parse.outputs.version }}
+        run: echo $VERSION
       - name: Get latest release
         id: latest
         uses: actions/github-script@v7
