@@ -10,6 +10,7 @@ use openjlc::processor::process_files_with_rule;
 use openjlc::validator::validate_target_directory;
 use openjlc::injector::inject_headers;
 use openjlc::packager::package_target_dir;
+use openjlc::cleaner::clear_directories;
 
 lazy_static! {
     static ref EDA_TOOL: Mutex<EDATool> = Mutex::new(EDATool::Unknown);
@@ -94,10 +95,11 @@ async fn main() {
                     }
                     _ => {}
                 }
-                
+
                 validate_target_directory();
                 inject_headers();
                 package_target_dir(eda_type);
+                clear_directories();
             }
             Err(e) => {
                 if !e.to_string().is_empty() {
