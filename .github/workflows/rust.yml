@@ -38,10 +38,17 @@ jobs:
       - name: Build
         run: cargo build --release --target ${{ matrix.target }}
 
-      - name: Package
+      - name: Package (Unix)
+        if: matrix.os != 'windows-latest'
         run: |
           mkdir -p artifacts
-          cp target/${{ matrix.target }}/release/openjlc artifacts/openjlc-${{ matrix.target }}${{ matrix.os == 'windows-latest' && '.exe' || '' }}
+          cp target/${{ matrix.target }}/release/openjlc artifacts/openjlc-${{ matrix.target }}
+
+      - name: Package (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          mkdir artifacts
+          copy target\${{ matrix.target }}\release\openjlc.exe artifacts\openjlc-${{ matrix.target }}.exe
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
