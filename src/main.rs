@@ -11,6 +11,7 @@ use openjlc::validator::validate_target_directory;
 use openjlc::injector::inject_headers;
 use openjlc::packager::package_target_dir;
 use openjlc::cleaner::clear_directories;
+use openjlc::reporter::generate_report;
 
 lazy_static! {
     static ref EDA_TOOL: Mutex<EDATool> = Mutex::new(EDATool::Unknown);
@@ -22,6 +23,12 @@ fn eda_tool_to_str(tool: &EDATool) -> &'static str {
         EDATool::KiCad => "KiCad",
         EDATool::LCEDA => "LCEDA",
         EDATool::Unknown => "Unknown",
+    }
+}
+
+pub fn report_error() {
+    if let Some(file_path) = get_input_file_path() {
+        generate_report(file_path);
     }
 }
 
@@ -56,7 +63,7 @@ async fn main() {
 
     if let Err(e) = check_and_download_rule_files().await {
         log::log(&format!("! Failed to download rule files: {}", e));
-        return;
+        report_error();
     }
 
     if let Some(file_path) = get_input_file_path() {
@@ -64,7 +71,7 @@ async fn main() {
 
         if let Err(e) = extract_zip_to_temp(&temp_dir, &file_path) {
             log::log(&format!("! Failed to extract zip file: {}", e));
-            return;
+            report_error();
         }
 
         log::log(&format!("+ Successfully extracted zip file to {:?}", temp_dir));
@@ -76,10 +83,12 @@ async fn main() {
 
                 if let Err(e) = create_pcb_order_file(&target_dir) {
                     log::log(&format!("! Failed to create PCB order file: {}", e));
+                    report_error();
                 }
 
                 if let Err(e) = create_header_yaml(&target_dir) {
                     log::log(&format!("! Failed to create header.yaml: {}", e));
+                    report_error();
                 }
 
                 let eda_type = match tool {
@@ -87,7 +96,7 @@ async fn main() {
                     EDATool::KiCad => "Ki",
                     _ => {
                         log::log("! Unsupported EDA tool, exiting");
-                        std::process::exit(0);
+                        report_error();
                     }
                 };
 
@@ -95,11 +104,13 @@ async fn main() {
                     EDATool::Altium => {
                         if let Err(e) = process_files_with_rule("altium_designer.yaml") {
                             log::log(&format!("! Altium processing failed: {}", e));
+                            report_error();
                         }
                     }
                     EDATool::KiCad => {
                         if let Err(e) = process_files_with_rule("kicad.yaml") {
                             log::log(&format!("! KiCad processing failed: {}", e));
+                            report_error();
                         }
                     }
                     _ => {}
@@ -113,10 +124,12 @@ async fn main() {
             Err(e) => {
                 if !e.to_string().is_empty() {
                     log::log(&format!("! Failed to identify EDA file: {}", e));
+                    report_error();
                 }
             },
         }
     } else {
         log::log("! No valid file path provided");
+        report_error();
     }
 }

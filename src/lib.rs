@@ -8,4 +8,5 @@ pub mod validator;
 pub mod injector;
 pub mod packager;
 pub mod cleaner;
+pub mod reporter;
 pub mod utils;
