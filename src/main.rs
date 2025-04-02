@@ -8,6 +8,7 @@ use std::sync::Mutex;
 use openjlc::utils::{create_pcb_order_file, create_header_yaml};
 use openjlc::processor::process_files_with_rule;
 use openjlc::validator::validate_target_directory;
+use openjlc::injector::inject_headers;
 
 lazy_static! {
     static ref EDA_TOOL: Mutex<EDATool> = Mutex::new(EDATool::Unknown);
@@ -88,6 +89,7 @@ async fn main() {
                 }
                 
                 validate_target_directory();
+                inject_headers();
             }
             Err(e) => {
                 if !e.to_string().is_empty() {
