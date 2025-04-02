@@ -35,7 +35,7 @@ pub fn validate_target_directory() -> bool {
     let mut missing_files = Vec::new();
     let mut has_top_copper = false;
     let mut has_bottom_copper = false;
-    let mut has_inner_layer_1 = false;
+    let has_inner_layer_1 = false;
 
     for &required in REQUIRED_FILES {
         if !files.iter().any(|f| f == required) {
