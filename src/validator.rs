@@ -100,7 +100,7 @@ pub fn validate_target_directory() -> bool {
     }
 
     if missing_files.is_empty() {
-        log::log("- Basic structure validation passed");
+        log::log("- Structure validation passed");
         true
     } else {
         for msg in missing_files {
