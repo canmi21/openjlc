@@ -12,7 +12,7 @@ pub fn inject_headers() {
     }
 
     let header_content = match fs::read_to_string(&header_path) {
-        Ok(content) => content.lines().skip(1).collect::<Vec<_>>().join("\n") + "\n",
+        Ok(content) => content.lines().skip(1).map(|line| line.trim_start()).collect::<Vec<_>>().join("\n") + "\n",
         Err(e) => {
             log::log(&format!("! Failed to read header.yaml: {}", e));
             std::process::exit(0);
@@ -52,7 +52,7 @@ pub fn inject_headers() {
         if let Err(e) = fs::write(&path, modified_content) {
             log::log(&format!("! Failed to inject header into {:?}: {}", path, e));
         } else {
-            log::log(&format!("+ Injected '{}'", filename));
+            log::log(&format!("> Inject '{:?}'", path));
         }
     }
 }
