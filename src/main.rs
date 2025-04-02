@@ -2,7 +2,7 @@ use openjlc::log;
 use std::sync::Mutex;
 use lazy_static::lazy_static;
 use openjlc::cli::get_input_file_path;
-use openjlc::config::{get_temp_dir, get_target_dir, check_and_download_rule_files};
+use openjlc::config::{get_temp_dir, get_target_dir, get_report_dir, check_and_download_rule_files};
 use openjlc::extractor::extract_zip_to_temp;
 use openjlc::identifier::{identify_eda_files, EDATool};
 use openjlc::utils::{create_pcb_order_file, create_header_yaml};
@@ -43,6 +43,15 @@ async fn main() {
         log::log(&format!("+ Created target at {:?}", target_dir));
     } else {
         log::log(&format!("- Target directory already exists at {:?}", target_dir));
+    }
+
+    let report_dir = get_report_dir();
+    if !report_dir.exists() {
+        log::log("! Report directory not found");
+        std::fs::create_dir_all(&report_dir).unwrap();
+        log::log(&format!("+ Created report at {:?}", report_dir));
+    } else {
+        log::log(&format!("- Report directory already exists at {:?}", report_dir));
     }
 
     if let Err(e) = check_and_download_rule_files().await {

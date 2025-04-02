@@ -25,6 +25,13 @@ pub fn get_rule_dir() -> PathBuf {
     Path::new(&home_dir).join(".canmi/openjlc/rule")
 }
 
+pub fn get_report_dir() -> PathBuf {
+    let home_dir = env::var("HOME")
+        .or_else(|_| env::var("USERPROFILE"))
+        .unwrap_or_else(|_| ".".to_string());
+    Path::new(&home_dir).join(".canmi/openjlc/report")
+}
+
 async fn download_rule_file(url: &str, dest_path: &Path) -> Result<(), Box<dyn std::error::Error>> {
     log::log(&format!("> Downloading rule file from {}", url));
     let content = reqwest::get(url).await?.text().await?;
@@ -59,6 +66,15 @@ pub async fn check_and_download_rule_files() -> Result<(), Box<dyn std::error::E
         download_rule_file(url, &kicad_path).await?;
     } else {
         log::log(&format!("- Rule file already exists: {:?}", kicad_path));
+    }
+
+    let report_dir = get_report_dir();
+    if !report_dir.exists() {
+        log::log("! Report directory not found");
+        fs::create_dir_all(&report_dir)?;
+        log::log(&format!("+ Created report directory at {:?}", report_dir));
+    } else {
+        log::log(&format!("- Report directory already exists at {:?}", report_dir));
     }
 
     Ok(())
