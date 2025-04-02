@@ -5,11 +5,13 @@ use crate::log;
 const REQUIRED_FILES: &[&str] = &[
     "PCB下单必读.txt",
     "header.yaml",
-    "Gerber_TopLayer.GTL",
-    "Gerber_TopSolderMaskLayer.GTS",
 ];
 
-const REQUIRED_PREFIX: &str = "Gerber_BoardOutlineLayer";
+const REQUIRED_PREFIXES: &[&str] = &[
+    "Gerber_BoardOutlineLayer",
+    "Gerber_TopLayer",
+    "Gerber_TopSolderMaskLayer",
+];
 
 pub fn validate_target_directory() -> bool {
     let target_dir = get_target_dir();
@@ -36,8 +38,10 @@ pub fn validate_target_directory() -> bool {
         }
     }
 
-    if !files.iter().any(|f| f.starts_with(REQUIRED_PREFIX)) {
-        missing_files.push(format!("! Missing {}.*", REQUIRED_PREFIX));
+    for &prefix in REQUIRED_PREFIXES {
+        if !files.iter().any(|f| f.starts_with(prefix)) {
+            missing_files.push(format!("! Missing {}.*", prefix));
+        }
     }
 
     if missing_files.is_empty() {
