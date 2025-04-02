@@ -60,10 +60,14 @@ pub fn identify_eda_files(temp_dir: &Path) -> io::Result<(PathBuf, EDATool)> {
                     if keywords.iter().any(|&kw| check_file_signature(&path, kw)) {
                         log::log("! File appears to have been injected");
                         return Err(io::Error::new(io::ErrorKind::InvalidData, ""));
+                    } else {
+                        log::log("- No valid EDA signature found");
+                        return Err(io::Error::new(io::ErrorKind::NotFound, ""));
                     }
                 }
             }
         }
     }
-    Err(io::Error::new(io::ErrorKind::NotFound, "- No valid EDA signature found"))
+    log::log("- No valid EDA signature found");
+    Err(io::Error::new(io::ErrorKind::NotFound, ""))
 }

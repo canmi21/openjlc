@@ -84,7 +84,11 @@ async fn main() {
                     EDATool::Unknown => log::log("! Unknown EDA tool, skipping processing"),
                 }
             }
-            Err(e) => log::log(&format!("! Failed to identify EDA file: {}", e)),
+            Err(e) => {
+                if !e.to_string().is_empty() {
+                    log::log(&format!("! Failed to identify EDA file: {}", e));
+                }
+            },
         }
     } else {
         log::log("! No valid file path provided");
