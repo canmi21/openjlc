@@ -1,5 +1,4 @@
 use std::fs;
-use std::path::Path;
 use fancy_regex::Regex;
 use crate::config::get_target_dir;
 use crate::log;
@@ -21,12 +20,9 @@ pub fn inject_headers() {
     };
 
     let re = Regex::new(r"(?i)(KiCad|Altium Designer|Altium)").unwrap();
-
-    for entry in fs::read_dir(&target_dir).unwrap_or_else(|_| vec![].into_iter()) {
-        let path = match entry {
-            Ok(e) => e.path(),
-            Err(_) => continue,
-        };
+    
+    for entry in fs::read_dir(&target_dir).unwrap() {
+        let path = entry.unwrap().path();
 
         if !path.is_file() {
             continue;
@@ -45,16 +41,18 @@ pub fn inject_headers() {
         let modified_content = header_content.clone() + &content;
         let modified_content = re
             .replace_all(&modified_content, |caps: &fancy_regex::Captures| {
-                match caps.get(0).unwrap().as_str() {
-                    "KiCad" | "Altium" => "OpenJLC".to_string(),
-                    "Altium Designer" => "Ki Designer".to_string(),
-                    _ => unreachable!(),
+                match caps.get(0).unwrap().as_str().to_lowercase().as_str() {
+                    "kicad" | "altium" => "OpenJLC".to_string(),
+                    "altium designer" => "Ki Designer".to_string(),
+                    s => s.to_string(),
                 }
             })
             .to_string();
 
         if let Err(e) = fs::write(&path, modified_content) {
             log::log(&format!("! Failed to inject header into {:?}: {}", path, e));
+        } else {
+            log::log(&format!("+ Injected '{}'", filename));
         }
     }
 }
