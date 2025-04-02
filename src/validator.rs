@@ -35,7 +35,7 @@ pub fn validate_target_directory() -> bool {
     let mut missing_files = Vec::new();
     let mut has_top_copper = false;
     let mut has_bottom_copper = false;
-    let has_inner_layer_1 = false;
+    let mut has_inner_layers = vec![false; 10];
 
     for &required in REQUIRED_FILES {
         if !files.iter().any(|f| f == required) {
@@ -81,23 +81,29 @@ pub fn validate_target_directory() -> bool {
                 .strip_prefix("Gerber_InnerLayer")
                 .and_then(|s| s.parse().ok());
             if let Some(n) = layer_number {
-                if n < 10 {
-                    let next_layer = format!("Gerber_InnerLayer{}", n + 1);
-                    if !files.iter().any(|f| f.starts_with(&next_layer)) {
-                        log::log(&format!("! Missing {}, consider checking it", next_layer));
-                    }
+                if n <= 10 {
+                    has_inner_layers[n as usize - 1] = true;
                 }
-            }
-
-            unsafe {
-                LAYER_COUNT += 1;
             }
         }
     }
 
-    if has_top_copper && has_inner_layer_1 && !has_bottom_copper {
+    if has_top_copper && has_inner_layers[0] && !has_bottom_copper {
         log::log("! Missing Bottom Copper layer due to Top Copper and Inner Layer 1 presence");
         std::process::exit(0);
+    }
+
+    let mut layer_count = 0;
+    if has_top_copper {
+        layer_count += 1;
+    }
+    if has_bottom_copper {
+        layer_count += 1;
+    }
+    layer_count += has_inner_layers.iter().filter(|&&x| x).count() as u32;
+
+    unsafe {
+        LAYER_COUNT = layer_count;
     }
 
     if missing_files.is_empty() {
