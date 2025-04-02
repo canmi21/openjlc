@@ -59,7 +59,7 @@ async fn main() {
         match identify_eda_files(&temp_dir) {
             Ok((gerber_file, tool)) => {
                 log::log(&format!("+ Identified {} Gerber file: {:?}", eda_tool_to_str(&tool), gerber_file));
-                *EDA_TOOL.lock().unwrap() = tool.clone(); // Clone instead of move
+                *EDA_TOOL.lock().unwrap() = tool.clone();
 
                 if let Err(e) = create_pcb_order_file(&target_dir) {
                     log::log(&format!("! Failed to create PCB order file: {}", e));
@@ -69,34 +69,23 @@ async fn main() {
                     log::log(&format!("! Failed to create header.yaml: {}", e));
                 }
 
-                let rule_file = match tool {
-                    EDATool::Altium => "rule/altium_designer.yaml",
-                    EDATool::KiCad => "rule/kicad.yaml",
-                    _ => {
-                        log::log("! Unsupported EDA tool, skipping rule processing.");
-                        return;
+                match tool {
+                    EDATool::Altium => {
+                        if let Err(e) = process_files_with_rule("altium_designer.yaml") {
+                            log::log(&format!("! Altium processing failed: {}", e));
+                        }
                     }
-                };
-
+                    EDATool::KiCad => {
+                        if let Err(e) = process_files_with_rule("kicad.yaml") {
+                            log::log(&format!("! KiCad processing failed: {}", e));
+                        }
+                    }
+                    EDATool::LCEDA => log::log("- Skipping LCEDA processing"),
+                    EDATool::Unknown => log::log("! Unknown EDA tool, skipping processing"),
+                }
             }
             Err(e) => log::log(&format!("! Failed to identify EDA file: {}", e)),
         }
-
-        match tool {
-            EDATool::Altium => {
-                if let Err(e) = process_files_with_rule("altium_designer.yaml") {
-                    log::log(&format!("! Altium processing failed: {}", e));
-                }
-            }
-            EDATool::KiCad => {
-                if let Err(e) = process_files_with_rule("kicad.yaml") {
-                    log::log(&format!("! KiCad processing failed: {}", e));
-                }
-            }
-            EDATool::LCEDA => log::log("- Skipping LCEDA processing"),
-            EDATool::Unknown => log::log("! Unknown EDA tool, skipping processing"),
-        }
-
     } else {
         log::log("! No valid file path provided");
     }
