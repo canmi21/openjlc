@@ -22,14 +22,20 @@ pub fn process_rule_yaml(rule_name: &str) -> Result<(), Box<dyn std::error::Erro
         }
 
         let layer_name = parts[0];
-        let regex_str = parts[1];
+        let regex_str = parts[1].trim_matches('"');
         let regex = Regex::new(regex_str)?;
+
+        log::log(&format!("> Using regex for layer '{}': {}", layer_name, regex_str));
 
         let mut matched_file: Option<PathBuf> = None;
         for entry in fs::read_dir(&temp_dir)? {
             let entry = entry?;
             let path = entry.path();
-            if path.is_file() && regex.is_match(path.to_str().unwrap_or("")) {
+            let path_str = path.display().to_string();
+
+            log::log(&format!("> Checking file: {}", path_str));
+
+            if path.is_file() && regex.is_match(&path_str) {
                 matched_file = Some(path);
                 break;
             }
