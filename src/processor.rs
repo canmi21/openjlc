@@ -4,6 +4,7 @@ use std::fs;
 use fancy_regex::RegexBuilder;
 use serde_yaml;
 use crate::log;
+use crate::error::report_error;
 use crate::config::{get_rule_dir, get_temp_dir, get_target_dir};
 
 pub fn process_files_with_rule(yaml_name: &str) -> Result<(), Box<dyn Error>> {
@@ -36,7 +37,8 @@ pub fn process_files_with_rule(yaml_name: &str) -> Result<(), Box<dyn Error>> {
         }
 
         if found_paths.len() > 1 {
-            return Err(format!("! Regex pattern '{}' matched multiple files: {:?}", pattern, found_paths).into());
+            log::log(&format!("! Regex pattern '{}' matched multiple files: {:?}", pattern, found_paths));
+            report_error();
         }
 
         if !found_paths.is_empty() {
