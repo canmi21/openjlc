@@ -1,25 +1,31 @@
 use std::env;
 use std::fs;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use reqwest;
 use crate::log;
 
 pub fn get_temp_dir() -> PathBuf {
-    let home_dir = env::var("HOME").or_else(|_| env::var("USERPROFILE")).unwrap_or_else(|_| ".".to_string());
-    PathBuf::from(home_dir).join(".canmi/openjlc/temp")
+    let home_dir = env::var("HOME")
+        .or_else(|_| env::var("USERPROFILE"))
+        .unwrap_or_else(|_| ".".to_string());
+    Path::new(&home_dir).join(".canmi/openjlc/temp")
 }
 
 pub fn get_target_dir() -> PathBuf {
-    let home_dir = env::var("HOME").or_else(|_| env::var("USERPROFILE")).unwrap_or_else(|_| ".".to_string());
-    PathBuf::from(home_dir).join(".canmi/openjlc/target")
+    let home_dir = env::var("HOME")
+        .or_else(|_| env::var("USERPROFILE"))
+        .unwrap_or_else(|_| ".".to_string());
+    Path::new(&home_dir).join(".canmi/openjlc/target")
 }
 
 pub fn get_rule_dir() -> PathBuf {
-    let home_dir = env::var("HOME").or_else(|_| env::var("USERPROFILE")).unwrap_or_else(|_| ".".to_string());
-    PathBuf::from(home_dir).join(".canmi/openjlc/rule")
+    let home_dir = env::var("HOME")
+        .or_else(|_| env::var("USERPROFILE"))
+        .unwrap_or_else(|_| ".".to_string());
+    Path::new(&home_dir).join(".canmi/openjlc/rule")
 }
 
-async fn download_rule_file(url: &str, dest_path: &std::path::Path) -> Result<(), Box<dyn std::error::Error>> {
+async fn download_rule_file(url: &str, dest_path: &Path) -> Result<(), Box<dyn std::error::Error>> {
     log::log(&format!("> Downloading rule file from {}", url));
     let content = reqwest::get(url).await?.text().await?;
     fs::write(dest_path, content)?;
