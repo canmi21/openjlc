@@ -10,6 +10,7 @@ use crate::cleaner::clear_directories;
 use notify_rust::Notification;
 
 pub fn generate_report(input_zip: PathBuf) {
+    let input_zip_name = input_zip.file_name().unwrap().to_owned();
     let report_dir = get_report_dir();
     if report_dir.exists() {
         fs::remove_dir_all(&report_dir).unwrap();
@@ -102,6 +103,11 @@ pub fn generate_report(input_zip: PathBuf) {
                 std::io::copy(&mut f, &mut zip).unwrap();
             }
         }
+    }
+
+    let input_zip_path = report_dir.join(input_zip_name);
+    if input_zip_path.exists() {
+        fs::remove_file(input_zip_path).unwrap();
     }
 
     zip.finish().unwrap();
