@@ -28,7 +28,7 @@ jobs:
         id: read
         shell: bash
         run: |
-          VERSION=$(grep -m1 '^version' Cargo.toml | sed 's/version = "\(.*\)"/\1/')
+          VERSION=$(awk -F ' *= *' '/^version/ {gsub(/"/, "", $2); print $2; exit}' Cargo.toml)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
       
       - name: Setup Rust
@@ -37,10 +37,11 @@ jobs:
           targets: ${{ matrix.target }}
       
       - name: Build
+        shell: bash
         run: |
           cargo build --release --target ${{ matrix.target }}
           mkdir -p artifacts
-          if [[ "${{ matrix.os }}" == "windows-latest" ]]; then
+          if [ "$RUNNER_OS" == "Windows" ]; then
             cp target/${{ matrix.target }}/release/openjlc.exe artifacts/openjlc-${{ matrix.target }}.exe
           else
             cp target/${{ matrix.target }}/release/openjlc artifacts/openjlc-${{ matrix.target }}
@@ -72,6 +73,7 @@ jobs:
           targets: ${{ matrix.target }}
       
       - name: Build
+        shell: bash
         run: |
           cargo build --release --target ${{ matrix.target }}
           mkdir -p artifacts
