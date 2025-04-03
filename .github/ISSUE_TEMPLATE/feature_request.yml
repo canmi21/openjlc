@@ -1,0 +1,75 @@
+name: Feature request
+description: Suggest a new feature or enhancement
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to suggest a new feature! Please provide a clear and detailed description.
+
+  - type: input
+    id: feature-title
+    attributes:
+      label: Feature Title
+      description: Provide a short and descriptive title for the feature request.
+      placeholder: Feature title
+    validations:
+      required: true
+
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: Feature Description
+      description: A clear and concise description of the feature. If you plan to implement this yourself, let us know!
+      placeholder: Describe the feature
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: Why is this feature important? What problem does it solve?
+      placeholder: Explain why this feature should be added
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: Have you considered other solutions or workarounds?
+      placeholder: Describe any alternative solutions you have considered
+    validations:
+      required: false
+
+  - type: textarea
+    id: related-issues
+    attributes:
+      label: Related Issues
+      description: If this feature is related to an existing issue, link it here.
+      placeholder: e.g., #1234
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: validations
+    attributes:
+      label: Validations
+      description: Before submitting, please ensure the following:
+      options:
+        - label: I have checked that this feature request does not already exist.
+          required: true
+        - label: I have provided enough context and detail about the feature.
+          required: true
+        - label: This is a concrete feature request, not a vague idea.
+          required: true
+
+  - type: checkboxes
+    id: contributions
+    attributes:
+      label: Contributions
+      description: Open-source projects rely on contributions. Let us know if you are willing to help!
+      options:
+        - label: I am willing to submit a PR to implement this feature.
+        - label: I am willing to help test this feature once implemented.
