@@ -17,6 +17,7 @@ jobs:
         id: read
         run: |
           VERSION=$(grep -m1 '^version' Cargo.toml | sed 's/version = "\(.*\)"/\1/')
+          echo "Version: $VERSION"
           echo "version=$VERSION" >> $GITHUB_OUTPUT
       - name: Check Release Tag
         id: compare
