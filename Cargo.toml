@@ -10,7 +10,7 @@ homepage = "https://github.com/canmi21/openjlc"
 documentation = "https://github.com/canmi21/openjlc?tab=readme-ov-file"
 readme = "README.md"
 keywords = ["kicad","altium","openjlc", "fuckjlc", "transjlc"]
-categories = ["eda", "gerber"]
+categories = ["command-line-utilities", "parsing", "development-tools"]
 
 [dependencies]
 chrono = "0.4"
