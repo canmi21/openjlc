@@ -2,11 +2,11 @@ name: Cargo CI
 
 on:
   push:
-    branches: [main]
+    #branches: [main]
   workflow_dispatch:
 
 jobs:
-  Check_Release:
+  Checkout:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.read.outputs.version }}
