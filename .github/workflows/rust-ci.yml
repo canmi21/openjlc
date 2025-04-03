@@ -16,7 +16,7 @@ jobs:
           - os: windows-latest
             target: x86_64-pc-windows-msvc
           - os: windows-latest
-            target: i686-pc-windows-gnu
+            target: i686-pc-windows-msvc
       max-parallel: 3
     runs-on: ${{ matrix.os }}
     outputs:
@@ -27,33 +27,24 @@ jobs:
         id: read
         shell: bash
         run: |
-          if [ "${{ runner.os }}" == "Windows" ]; then
-            VERSION=$(powershell -Command "(Get-Content Cargo.toml | Select-String '^version\s*=\s*\"(.*)\"' | ForEach-Object { $_.Matches.Groups[1].Value })")
-          else
-            VERSION=$(grep -m1 '^version' Cargo.toml | sed 's/version = "\(.*\)"/\1/')
-          fi
+          VERSION=$(grep -m1 '^version' Cargo.toml | sed 's/version = "\(.*\)"/\1/')
           echo "version=$VERSION" >> $GITHUB_OUTPUT
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
-      - name: Build (Unix)
-        if: matrix.os != 'windows-latest'
+      - name: Build
         run: |
           cargo build --release --target ${{ matrix.target }}
           mkdir -p artifacts
           cp target/${{ matrix.target }}/release/openjlc artifacts/openjlc-${{ matrix.target }}
-      - name: Build (Windows)
-        if: matrix.os == 'windows-latest'
+      - name: Rename files
+        shell: bash
         run: |
-          cargo build --release --target ${{ matrix.target }}
-          mkdir artifacts
-          copy target\${{ matrix.target }}\release\openjlc.exe artifacts\openjlc-${{ matrix.target }}.exe
-      - name: Rename Windows Artifacts
-        if: matrix.os == 'windows-latest'
-        shell: cmd
-        run: |
-          ren artifacts\openjlc-${{ matrix.target }}.exe openjlc-${{ matrix.target }}-no-pc.exe
+          cd artifacts
+          for file in openjlc-*; do
+            mv "$file" "$(echo $file | sed 's/-pc//')"
+          done
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -82,6 +73,13 @@ jobs:
           cargo build --release --target ${{ matrix.target }}
           mkdir -p artifacts
           cp target/${{ matrix.target }}/release/openjlc artifacts/openjlc-${{ matrix.target }}
+      - name: Rename files
+        shell: bash
+        run: |
+          cd artifacts
+          for file in openjlc-*; do
+            mv "$file" "$(echo $file | sed 's/-pc//')"
+          done
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -95,14 +93,23 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
+      - name: Organize Artifacts
+        shell: bash
+        run: |
+          mkdir -p release
+          for dir in artifacts/*; do
+            for file in "$dir"/*; do
+              mv "$file" "release/$(basename "$file")"
+            done
+          done
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v${{ needs.build-1.outputs.version }}
           name: v${{ needs.build-1.outputs.version }}
           files: |
-            artifacts/openjlc-x86_64-unknown-linux-gnu/openjlc-x86_64-unknown-linux-gnu
-            artifacts/openjlc-x86_64-pc-windows-msvc/openjlc-x86_64-pc-windows-msvc-no-pc.exe
-            artifacts/openjlc-i686-pc-windows-gnu/openjlc-i686-pc-windows-gnu-no-pc.exe
-            artifacts/openjlc-x86_64-apple-darwin/openjlc-x86_64-apple-darwin
-            artifacts/openjlc-aarch64-apple-darwin/openjlc-aarch64-apple-darwin
+            release/openjlc-x86_64-unknown-linux-gnu
+            release/openjlc-x86_64-windows-msvc.exe
+            release/openjlc-i686-windows-msvc.exe
+            release/openjlc-x86_64-apple-darwin
+            release/openjlc-aarch64-apple-darwin
