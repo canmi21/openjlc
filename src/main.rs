@@ -47,7 +47,7 @@ async fn main() {
 
     let temp_dir = get_temp_dir();
     if !temp_dir.exists() {
-        log::log("! Temp directory not found");
+        //log::log("! Temp directory not found");
         std::fs::create_dir_all(&temp_dir).unwrap();
         log::log(&format!("+ Created temp at '{}'", temp_dir.display()));
     } else {
@@ -56,7 +56,7 @@ async fn main() {
 
     let target_dir = get_target_dir();
     if !target_dir.exists() {
-        log::log("! Target directory not found");
+        //log::log("! Target directory not found");
         std::fs::create_dir_all(&target_dir).unwrap();
         log::log(&format!("+ Created target at '{}'", target_dir.display()));
     } else {
