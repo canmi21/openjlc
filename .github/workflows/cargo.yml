@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  read_version:
+  Check_Release:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.read.outputs.version }}
