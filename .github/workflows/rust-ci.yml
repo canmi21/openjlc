@@ -1,57 +1,33 @@
 name: Rust CI
 
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
+  workflow_run:
+    workflows: ["Cargo CI"]
+    types: [completed]
 
 jobs:
-  check-version:
-    runs-on: ubuntu-latest
-    outputs:
-      should_build: ${{ steps.compare.outputs.should_build }}
-      version: ${{ steps.parse.outputs.version }}
-    steps:
-      - uses: actions/checkout@v4
-      - name: Parse Cargo.toml version
-        id: parse
-        run: echo "version=$(grep '^version' Cargo.toml | cut -d'"' -f2)" >> $GITHUB_OUTPUT
-      - name: Get latest release
-        id: latest
-        uses: actions/github-script@v7
-        with:
-          result-encoding: string
-          script: |
-            const releases = await github.rest.repos.listReleases({
-              owner: context.repo.owner,
-              repo: context.repo.repo
-            });
-            return releases.data.length > 0 ? releases.data[0].tag_name : 'none';
-      - name: Compare versions
-        id: compare
-        run: |
-          if [ "${{ steps.latest.outputs.result }}" == "v${{ steps.parse.outputs.version }}" ]; then
-            echo "should_build=false" >> $GITHUB_OUTPUT
-          else
-            echo "should_build=true" >> $GITHUB_OUTPUT
-          fi
-
-  build-group-1:
-    needs: check-version
-    if: needs.check-version.outputs.should_build == 'true'
+  build-1:
     strategy:
       matrix:
         include:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
           - os: windows-latest
-            target: x86_64-pc-windows-msvc
+            target: x86_64-windows-msvc
           - os: windows-latest
-            target: i686-pc-windows-msvc
+            target: i686-windows-msvc
       max-parallel: 3
     runs-on: ${{ matrix.os }}
+    outputs:
+      version: ${{ steps.read.outputs.version }}
     steps:
       - uses: actions/checkout@v4
+      - name: Read Cargo.toml Version
+        id: read
+        run: |
+          VERSION=$(grep -m1 '^version' Cargo.toml | sed 's/version = "\(.*\)"/\1/')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
@@ -74,9 +50,8 @@ jobs:
           name: openjlc-${{ matrix.target }}
           path: artifacts/
 
-  build-group-2:
-    needs: build-group-1
-    if: needs.check-version.outputs.should_build == 'true'
+  build-2:
+    needs: build-1
     strategy:
       matrix:
         include:
@@ -104,7 +79,7 @@ jobs:
           path: artifacts/
 
   release:
-    needs: [build-group-1, build-group-2]
+    needs: [build-1, build-2]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -113,10 +88,11 @@ jobs:
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ needs.check-version.outputs.version }}
+          tag_name: v${{ needs.build-1.outputs.version }}
+          name: v${{ needs.build-1.outputs.version }}
           files: |
             artifacts/openjlc-x86_64-unknown-linux-gnu/openjlc-x86_64-unknown-linux-gnu
-            artifacts/openjlc-x86_64-pc-windows-msvc/openjlc-x86_64-pc-windows-msvc.exe
-            artifacts/openjlc-i686-pc-windows-msvc/openjlc-i686-pc-windows-msvc.exe
+            artifacts/openjlc-x86_64-windows-msvc/openjlc-x86_64-windows-msvc.exe
+            artifacts/openjlc-i686-windows-msvc/openjlc-i686-windows-msvc.exe
             artifacts/openjlc-x86_64-apple-darwin/openjlc-x86_64-apple-darwin
             artifacts/openjlc-aarch64-apple-darwin/openjlc-aarch64-apple-darwin

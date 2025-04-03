@@ -1,16 +1,43 @@
-name: Print Cargo Version
+name: Cargo CI
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
   read_version:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.read.outputs.version }}
+      should_trigger: ${{ steps.compare.outputs.should_trigger }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Read Cargo Version
+      - uses: actions/checkout@v4
+      - name: Read Cargo.toml Version
+        id: read
         run: |
           VERSION=$(grep -m1 '^version' Cargo.toml | sed 's/version = "\(.*\)"/\1/')
-          echo "Cargo version: $VERSION"
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+      - name: Check Release Tag
+        id: compare
+        uses: actions/github-script@v7
+        with:
+          result-encoding: string
+          script: |
+            const releases = await github.rest.repos.listReleases({
+              owner: context.repo.owner,
+              repo: context.repo.repo
+            });
+            return releases.data.some(release => release.tag_name === `v${{ steps.read.outputs.version }}`) ? 'false' : 'true';
+          result: should_trigger
+      - name: Trigger Rust CI
+        if: steps.compare.outputs.should_trigger == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'rust-ci.yml',
+              ref: 'main'
+            });
