@@ -2,6 +2,7 @@ use std::env;
 use sys_info;
 use openjlc::log;
 use std::sync::Mutex;
+use std::time::Instant;
 use lazy_static::lazy_static;
 use openjlc::cli::get_input_file_path;
 use openjlc::config::{get_temp_dir, get_target_dir, get_report_dir, check_and_download_rule_files};
@@ -76,6 +77,8 @@ async fn main() {
         report_error();
     }
 
+    let processing_start_time = Instant::now();
+
     if let Some(file_path) = get_input_file_path() {
         log::log(&format!("> Processing file: '{}'", file_path.display()));
 
@@ -131,6 +134,10 @@ async fn main() {
                 inject_headers();
                 package_target_dir(eda_type);
                 clear_directories();
+
+                let processing_time = processing_start_time.elapsed().as_millis();
+                log::log(&format!("> Finished processing '{}' took {}ms", file_path.display(), processing_time));
+                
             }
             Err(e) => {
                 if !e.to_string().is_empty() {
