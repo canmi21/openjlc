@@ -2,6 +2,15 @@
 name = "openjlc"
 version = "2.21.4"
 edition = "2024"
+authors = ["Canmi(Canmi21)<t@canmi.icu>"]
+description = "Ultra-fast Gerber conversion tool."
+license = "MIT"
+repository = "https://github.com/canmi21/openjlc"
+homepage = "https://github.com/canmi21/openjlc"
+documentation = "https://github.com/canmi21/openjlc?tab=readme-ov-file"
+readme = "README.md"
+keywords = ["kicad","altium","openjlc", "fuckjlc", "transjlc"]
+categories = ["eda", "gerber"]
 
 [dependencies]
 chrono = "0.4"
