@@ -23,6 +23,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.9"
 fancy-regex = "0.14"
 notify-rust = "4.11"
+sys-info = "0.9"
 
 [lib]
 name = "openjlc"

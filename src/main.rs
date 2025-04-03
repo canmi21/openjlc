@@ -1,3 +1,5 @@
+use std::env;
+use sys_info;
 use openjlc::log;
 use std::sync::Mutex;
 use lazy_static::lazy_static;
@@ -26,8 +28,22 @@ fn eda_tool_to_str(tool: &EDATool) -> &'static str {
     }
 }
 
+fn get_os_and_arch() -> (String, String) {
+    let os = sys_info::os_type().unwrap_or_else(|_| "Unknown".to_string());
+    let arch = env::consts::ARCH.to_string();
+    (os, arch)
+}
+
 #[tokio::main]
 async fn main() {
+    clear_directories();
+    let version = env!("CARGO_PKG_VERSION");
+    let timestamp = chrono::Local::now().format("%Y%m%d%H%M%S").to_string();
+    let (os, arch) = get_os_and_arch();
+
+    log::log(&format!("+ OpenJLC v{} {}", version, timestamp));
+    log::log(&format!("- OS: {} & Arch: {}", os, arch));
+
     let temp_dir = get_temp_dir();
     if !temp_dir.exists() {
         log::log("! Temp directory not found");
