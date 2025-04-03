@@ -1,0 +1,16 @@
+name: Print Cargo Version
+
+on:
+  workflow_dispatch:
+
+jobs:
+  read_version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Read Cargo Version
+        run: |
+          VERSION=$(grep -m1 '^version' Cargo.toml | sed 's/version = "\(.*\)"/\1/')
+          echo "Cargo version: $VERSION"
