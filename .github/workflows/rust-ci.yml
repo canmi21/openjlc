@@ -14,9 +14,9 @@ jobs:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
           - os: windows-latest
-            target: x86_64-windows-msvc
+            target: x86_64-pc-windows-msvc
           - os: windows-latest
-            target: i686-windows-msvc
+            target: i686-pc-windows-gnu
       max-parallel: 3
     runs-on: ${{ matrix.os }}
     outputs:
@@ -49,6 +49,11 @@ jobs:
           cargo build --release --target ${{ matrix.target }}
           mkdir artifacts
           copy target\${{ matrix.target }}\release\openjlc.exe artifacts\openjlc-${{ matrix.target }}.exe
+      - name: Rename Windows Artifacts
+        if: matrix.os == 'windows-latest'
+        shell: cmd
+        run: |
+          ren artifacts\openjlc-${{ matrix.target }}.exe openjlc-${{ matrix.target }}-no-pc.exe
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -97,7 +102,7 @@ jobs:
           name: v${{ needs.build-1.outputs.version }}
           files: |
             artifacts/openjlc-x86_64-unknown-linux-gnu/openjlc-x86_64-unknown-linux-gnu
-            artifacts/openjlc-x86_64-windows-msvc/openjlc-x86_64-windows-msvc.exe
-            artifacts/openjlc-i686-windows-msvc/openjlc-i686-windows-msvc.exe
+            artifacts/openjlc-x86_64-pc-windows-msvc/openjlc-x86_64-pc-windows-msvc-no-pc.exe
+            artifacts/openjlc-i686-pc-windows-gnu/openjlc-i686-pc-windows-gnu-no-pc.exe
             artifacts/openjlc-x86_64-apple-darwin/openjlc-x86_64-apple-darwin
             artifacts/openjlc-aarch64-apple-darwin/openjlc-aarch64-apple-darwin
