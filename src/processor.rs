@@ -9,7 +9,7 @@ use crate::config::{get_rule_dir, get_temp_dir, get_target_dir};
 
 pub fn process_files_with_rule(yaml_name: &str) -> Result<(), Box<dyn Error>> {
     let rule_path = get_rule_dir().join(yaml_name);
-    let rule_content = fs::read_to_string(&rule_path).map_err(|e| format!("! Failed to read rule file {}: {}", rule_path.display(), e))?;
+    let rule_content = fs::read_to_string(&rule_path).map_err(|e| format!("! Failed to read rule file '{}': {}", rule_path.display(), e))?;
     
     let rules: HashMap<String, String> = serde_yaml::from_str(&rule_content)
         .map_err(|e| format!("! Failed to parse YAML: {}", e))?;

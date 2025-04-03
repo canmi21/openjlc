@@ -53,10 +53,10 @@ pub fn inject_headers() {
             .to_string();
 
         if let Err(e) = fs::write(&path, modified_content) {
-            log::log(&format!("! Failed to inject header into {:?}: {}", path, e));
+            log::log(&format!("! Failed to inject header into '{}': {}", path.display(), e));
             report_error();
         } else {
-            log::log(&format!("> Inject {:?}", path));
+            log::log(&format!("> Inject '{}'", path.display()));
         }
     }
 }

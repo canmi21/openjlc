@@ -19,7 +19,7 @@ pub static mut LAYER_COUNT: u32 = 0;
 pub fn validate_target_directory() -> bool {
     let target_dir = get_target_dir();
     if !target_dir.exists() {
-        log::log(&format!("! Target directory not found: {:?}", target_dir));
+        log::log(&format!("! Target directory not found: '{}'", target_dir.display()));
         report_error();
         return false;
     }
@@ -42,13 +42,13 @@ pub fn validate_target_directory() -> bool {
 
     for &required in REQUIRED_FILES {
         if !files.iter().any(|f| f == required) {
-            missing_files.push(format!("! Missing {}", required));
+            missing_files.push(format!("! Missing '{}'", required));
         }
     }
 
     for &prefix in REQUIRED_PREFIXES {
         if !files.iter().any(|f| f.starts_with(prefix)) {
-            missing_files.push(format!("! Missing {}.*", prefix));
+            missing_files.push(format!("! Missing '{}.*'", prefix));
         }
     }
 

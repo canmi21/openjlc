@@ -6,7 +6,7 @@ use std::path::PathBuf;
 
 fn get_log_file_path() -> PathBuf {
     let home_dir = env::var("HOME").or_else(|_| env::var("USERPROFILE")).unwrap_or_else(|_| ".".to_string());
-    let log_dir = PathBuf::from(home_dir).join(".canmi/openjlc/logs");
+    let log_dir = PathBuf::from(home_dir).join(".canmi").join("openjlc").join("logs");
 
     if let Err(e) = create_dir_all(&log_dir) {
         eprintln!("Permission Denied: {}", e);

@@ -32,27 +32,27 @@ async fn main() {
     if !temp_dir.exists() {
         log::log("! Temp directory not found");
         std::fs::create_dir_all(&temp_dir).unwrap();
-        log::log(&format!("+ Created temp at {:?}", temp_dir));
+        log::log(&format!("+ Created temp at '{}'", temp_dir.display()));
     } else {
-        log::log(&format!("- Temp directory already exists at {:?}", temp_dir));
+        log::log(&format!("- Temp directory already exists at '{}'", temp_dir.display()));
     }
 
     let target_dir = get_target_dir();
     if !target_dir.exists() {
         log::log("! Target directory not found");
         std::fs::create_dir_all(&target_dir).unwrap();
-        log::log(&format!("+ Created target at {:?}", target_dir));
+        log::log(&format!("+ Created target at '{}'", target_dir.display()));
     } else {
-        log::log(&format!("- Target directory already exists at {:?}", target_dir));
+        log::log(&format!("- Target directory already exists at '{}'", target_dir.display()));
     }
 
     let report_dir = get_report_dir();
     if !report_dir.exists() {
         log::log("! Report directory not found");
         std::fs::create_dir_all(&report_dir).unwrap();
-        log::log(&format!("+ Created report at {:?}", report_dir));
+        log::log(&format!("+ Created report at '{}'", report_dir.display()));
     } else {
-        log::log(&format!("- Report directory already exists at {:?}", report_dir));
+        log::log(&format!("- Report directory already exists at '{}'", report_dir.display()));
     }
 
     if let Err(e) = check_and_download_rule_files().await {
@@ -61,18 +61,18 @@ async fn main() {
     }
 
     if let Some(file_path) = get_input_file_path() {
-        log::log(&format!("> Processing file: {:?}", file_path));
+        log::log(&format!("> Processing file: '{}'", file_path.display()));
 
         if let Err(e) = extract_zip_to_temp(&temp_dir, &file_path) {
             log::log(&format!("! Failed to extract zip file: {}", e));
             report_error();
         }
 
-        log::log(&format!("+ Successfully extracted zip file to {:?}", temp_dir));
+        log::log(&format!("+ Successfully extracted zip file to '{}'", temp_dir.display()));
 
         match identify_eda_files(&temp_dir) {
             Ok((gerber_file, tool)) => {
-                log::log(&format!("+ Identified {} Gerber file: {:?}", eda_tool_to_str(&tool), gerber_file));
+                log::log(&format!("+ Identified {} Gerber file: '{}'", eda_tool_to_str(&tool), gerber_file.display()));
                 *EDA_TOOL.lock().unwrap() = tool.clone();
 
                 if let Err(e) = create_pcb_order_file(&target_dir) {

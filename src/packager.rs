@@ -35,5 +35,5 @@ pub fn package_target_dir(eda_type: &str) {
     }
 
     zip.finish().unwrap();
-    log::log(&format!("+ Packaged target directory into {:?}", output_path));
+    log::log(&format!("+ Packaged target directory into '{}'", output_path.display()));
 }
