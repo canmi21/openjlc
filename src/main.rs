@@ -132,11 +132,12 @@ async fn main() {
 
                 validate_target_directory();
                 inject_headers();
-                package_target_dir(eda_type);
+                let output_path = package_target_dir(eda_type);
                 clear_directories();
 
                 let processing_time = processing_start_time.elapsed().as_millis();
-                log::log(&format!("> Finished processing '{}' took {}ms", file_path.display(), processing_time));
+                let file_name = file_path.file_name().unwrap_or_default().to_string_lossy();
+                log::log(&format!("> Finished patch {}, took {}ms, dump at '{}'", file_name, processing_time, output_path.display()));
                 
             }
             Err(e) => {

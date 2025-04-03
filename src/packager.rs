@@ -6,7 +6,7 @@ use crate::cli::get_input_file_path;
 use crate::log;
 use crate::validator::LAYER_COUNT;
 
-pub fn package_target_dir(eda_type: &str) {
+pub fn package_target_dir(eda_type: &str) -> std::path::PathBuf {
     let target_dir = get_target_dir();
     let header_path = target_dir.join("header.yaml");
     if header_path.exists() {
@@ -36,4 +36,5 @@ pub fn package_target_dir(eda_type: &str) {
 
     zip.finish().unwrap();
     log::log(&format!("+ Packaged target directory into '{}'", output_path.display()));
+    output_path
 }
