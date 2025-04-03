@@ -25,8 +25,13 @@ jobs:
       - uses: actions/checkout@v4
       - name: Read Cargo.toml Version
         id: read
+        shell: bash
         run: |
-          VERSION=$(grep -m1 '^version' Cargo.toml | sed 's/version = "\(.*\)"/\1/')
+          if [ "${{ runner.os }}" == "Windows" ]; then
+            VERSION=$(powershell -Command "(Get-Content Cargo.toml | Select-String '^version\s*=\s*\"(.*)\"' | ForEach-Object { $_.Matches.Groups[1].Value })")
+          else
+            VERSION=$(grep -m1 '^version' Cargo.toml | sed 's/version = "\(.*\)"/\1/')
+          fi
           echo "version=$VERSION" >> $GITHUB_OUTPUT
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
