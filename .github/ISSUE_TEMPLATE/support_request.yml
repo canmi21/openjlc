@@ -1,0 +1,57 @@
+name: EDA Request
+description: Request support for Gerber files from a new Electronic Design Automation (EDA) tool
+labels: [enhancement, request_support]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting support for a new EDA tool! Please provide the details below.
+
+  - type: input
+    id: eda-name
+    attributes:
+      label: EDA Tool Name
+      description: What is the name of the EDA tool? Include the official website.
+      placeholder: e.g., Altium Designer - https://www.altium.com/altium-designer/
+    validations:
+      required: true
+
+  - type: textarea
+    id: gerber-description
+    attributes:
+      label: Gerber File Characteristics
+      description: Describe the Gerber files output by this tool (e.g., format, unique features). Please attach a .zip file example if possible.
+      placeholder: e.g., Uses RS-274X with embedded apertures and separate Excellon drill files.
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Why Support This?
+      description: Why is adding support for this EDA tool important? What problem does it solve?
+      placeholder: e.g., Widely used in industry, improves compatibility for manufacturing.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: validations
+    attributes:
+      label: Validations
+      description: "Please confirm the following:"
+      options:
+        - label: I have checked that this EDA tool is not already supported.
+          required: true
+        - label: I have provided enough detail about the Gerber files.
+          required: true
+
+  - type: checkboxes
+    id: contributions
+    attributes:
+      label: Willing to Help?
+      description: Let us know if you can contribute to this feature.
+      options:
+        - label: I am willing to submit a PR to implement this support.
+          required: false
+        - label: I am willing to help test this once implemented.
+          required: false
