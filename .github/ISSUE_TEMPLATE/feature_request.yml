@@ -72,4 +72,6 @@ body:
       description: Open-source projects rely on contributions. Let us know if you are willing to help!
       options:
         - label: I am willing to submit a PR to implement this feature.
+          required: false
         - label: I am willing to help test this feature once implemented.
+          required: false
