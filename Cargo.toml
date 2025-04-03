@@ -1,6 +1,6 @@
 [package]
 name = "openjlc"
-version = "2.21.4"
+version = "2.21.5"
 edition = "2024"
 authors = ["Canmi(Canmi21)<t@canmi.icu>"]
 description = "Ultra-fast Gerber conversion tool."
