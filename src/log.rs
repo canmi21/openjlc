@@ -4,7 +4,7 @@ use std::fs::{create_dir_all, OpenOptions};
 use std::io::Write;
 use std::path::PathBuf;
 
-fn get_log_file_path() -> PathBuf {
+pub fn get_log_file_path() -> PathBuf {
     let home_dir = env::var("HOME").or_else(|_| env::var("USERPROFILE")).unwrap_or_else(|_| ".".to_string());
     let log_dir = PathBuf::from(home_dir).join(".canmi").join("openjlc").join("logs");
 

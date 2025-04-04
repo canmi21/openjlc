@@ -1,6 +1,6 @@
 [package]
 name = "openjlc"
-version = "2.21.6"
+version = "2.21.7"
 edition = "2024"
 authors = ["Canmi(Canmi21)<t@canmi.icu>"]
 description = "Ultra-fast Gerber conversion tool."
@@ -24,6 +24,8 @@ serde_yaml = "0.9"
 fancy-regex = "0.14"
 notify-rust = "4.11"
 sys-info = "0.9"
+rfd = "0.15"
+webbrowser = "1.0"
 
 [lib]
 name = "openjlc"

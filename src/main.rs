@@ -15,6 +15,8 @@ use openjlc::injector::inject_headers;
 use openjlc::packager::package_target_dir;
 use openjlc::cleaner::clear_directories;
 use openjlc::error::report_error;
+use rfd::MessageDialog;
+use webbrowser;
 
 lazy_static! {
     static ref EDA_TOOL: Mutex<EDATool> = Mutex::new(EDATool::Unknown);
@@ -47,7 +49,6 @@ async fn main() {
 
     let temp_dir = get_temp_dir();
     if !temp_dir.exists() {
-        //log::log("! Temp directory not found");
         std::fs::create_dir_all(&temp_dir).unwrap();
         log::log(&format!("+ Created temp at '{}'", temp_dir.display()));
     } else {
@@ -56,7 +57,6 @@ async fn main() {
 
     let target_dir = get_target_dir();
     if !target_dir.exists() {
-        //log::log("! Target directory not found");
         std::fs::create_dir_all(&target_dir).unwrap();
         log::log(&format!("+ Created target at '{}'", target_dir.display()));
     } else {
@@ -139,6 +139,20 @@ async fn main() {
                 let file_name = file_path.file_name().unwrap_or_default().to_string_lossy();
                 log::log(&format!("> Finished patch {}, took {}ms, dump at '{}'", file_name, processing_time, output_path.display()));
                 
+                let log_path = log::get_log_file_path();
+                if let Ok(entries) = std::fs::read_dir(log_path.parent().unwrap()) {
+                    let log_count = entries.filter(|e| e.is_ok()).count();
+                    if log_count > 0 && log_count % 30 == 0 {
+                        let result = MessageDialog::new()
+                            .set_title("Support OpenJLC")
+                            .set_description(&format!("You've used OpenJLC {} times. If you find it helpful, would you like to give the project a star on GitHub?", log_count))
+                            .set_buttons(rfd::MessageButtons::YesNo)
+                            .show();
+                        if result == rfd::MessageDialogResult::Yes {
+                            webbrowser::open("https://github.com/canmi21/openjlc").unwrap_or_default();
+                        }
+                    }
+                }
             }
             Err(e) => {
                 if !e.to_string().is_empty() {
