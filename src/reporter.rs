@@ -13,7 +13,17 @@ pub fn generate_report(input_zip: PathBuf) {
     let input_zip_name = input_zip.file_name().unwrap().to_owned();
     let report_dir = get_report_dir();
     if report_dir.exists() {
-        fs::remove_dir_all(&report_dir).unwrap();
+        //fs::remove_dir_all(&report_dir).unwrap();
+        for entry in fs::read_dir(&report_dir).unwrap() {
+            let entry = entry.unwrap();
+            let path = entry.path();
+            if path.is_file() && path.extension().unwrap_or_default() != "zip" {
+                fs::remove_file(path).unwrap();
+            } else if path.is_dir() {
+                fs::remove_dir_all(path).unwrap();
+            }
+        }
+    
     }
     fs::create_dir_all(&report_dir).unwrap();
 
