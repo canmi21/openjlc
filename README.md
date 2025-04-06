@@ -30,12 +30,12 @@ Feel free to try it using the following methods:
 
 <table>
   <tr><td>🚀 <b>Install via Cargo</b></td><td><code>cargo install openjlc</code></td></tr>
+  <tr><td>📦 <b>Arch Linux AUR</b></td><td>Install via: <code>yay -S openjlc</code></td></tr>
   <tr><td>⚡️ <b>Run directly</b></td><td><code>openjlc file.zip or path_to_file/file.zip</code></td></tr>
   <tr><td>🗂️ <b>Supported input formats</b></td><td>KiCad, Altium Designer, EasyEDA — and more on the way!</td></tr>
-  <tr><td>❇️ <b>Cross-platform builds</b></td><td>Prebuilt binaries for Linux, Windows, macOS available on <a href="https://github.com/canmi21/openjlc/releases">Releases</a></td></tr>
+  <tr><td>❇️ <b>Cross-platform builds</b></td><td>Prebuilt binaries for Linux, Windows, macOS available on <a href="https://github.com/canmi21/openjlc/releases">releases</a></td></tr>
   <tr><td>🛠️ <b>Gerber analyzer</b></td><td>Auto label output file with <code>-{detected-eda}-L{layer}</code></td></tr>
-  <tr><td>📦 <b>Arch Linux AUR</b></td><td>Install via: <code>yay -S openjlc</code></td></tr>
-  <tr><td>🔄 <b>Fast updates</b></td><td>Track latest changes via <a href="https://github.com/canmi21/openjlc/actions?query=event%3Aworkflow_dispatch+branch%3Amain+is%3Asuccess">CI</a></td></tr>
+  <tr><td>🔄 <b>Fast updates</b></td><td>Track latest changes via <a href="https://github.com/canmi21/openjlc/actions?query=event%3Aworkflow_dispatch+branch%3Amain+is%3Asuccess">ci</a></td></tr>
   <tr><td>📣 <b>Contribute / Feedback</b></td><td>Create issues, pull requests, or just ⭐ the repo to support us!</td></tr>
 </table> 
 
