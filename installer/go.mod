@@ -3,8 +3,8 @@ module openjlc-installer
 go 1.21
 
 require (
-	fyne.io/fyne/v2 v2.4.5
 	golang.org/x/sys v0.20.0
+	fyne.io/fyne/v2 v2.4.5
 )
 
 require (

@@ -75,7 +75,7 @@ func downloadFile(url, filepath string) error {
 	return err
 }
 
-func install(release Release, logger *log.Logger) {
+func install(release Release, logger *log.Logger, integrateRightClick bool) {
 	arch := runtime.GOARCH
 	var filename string
 	if arch == "386" {
@@ -133,6 +133,24 @@ func install(release Release, logger *log.Logger) {
 		return
 	}
 
+	if integrateRightClick {
+		zipKey, _, err := registry.CreateKey(registry.CLASSES_ROOT, `.zip\OpenWithProgids`, registry.ALL_ACCESS)
+		if err != nil {
+			logger.Println("Failed to create .zip key: ", err)
+			return
+		}
+		defer zipKey.Close()
+		zipKey.SetStringValue("OpenJLC.zip", "")
+
+		appKey, _, err := registry.CreateKey(registry.CLASSES_ROOT, `OpenJLC.zip\shell\Open with OpenJLC\command`, registry.ALL_ACCESS)
+		if err != nil {
+			logger.Println("Failed to create command key: ", err)
+			return
+		}
+		defer appKey.Close()
+		appKey.SetStringValue("", "\""+installPath+"\" \"%1\"")
+	}
+
 	logger.Println("Installed to: ", installPath)
 }
 
@@ -169,7 +187,7 @@ func main() {
 		}
 
 		installButton.OnTapped = func() {
-			install(release, logger)
+			install(release, logger, rightClickCheck.Checked)
 			a.Quit()
 		}
 
