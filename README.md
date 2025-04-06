@@ -41,17 +41,19 @@ Feel free to try it using the following methods:
 
 ## ⚡️ Lightning-Fast Speed  
 Powered by Rust's high performance, OpenJLC can convert an 8-layer PCB from Altium in under 500ms.
+
 <div align="center">
   <p>
-    <a href="https://github.com/canmi21/openjlc" target="_blank"><img src="https://raw.githubusercontent.com/canmi21/openjlc/refs/heads/main/img/2025-04-06-222144.webp" alt="Linux" width="99%"/></a>
+    <a href="https://github.com/canmi21/openjlc" target="_blank"><img src="https://raw.githubusercontent.com/canmi21/openjlc/refs/heads/main/img/2025-04-06-222144.webp" alt="OpenJLC Speed Benchmark" width="99%"/></a>
   </p>
 </div>
 
 ## 🧩 Uniform Output Naming  
 We provide powerful regular expression rules to auto-analyze and rename output files, giving you a clean and consistent output structure.
+
 <div align="center">
   <p>
-    <a href="https://github.com/canmi21/openjlc" target="_blank"><img src="https://raw.githubusercontent.com/canmi21/openjlc/refs/heads/main/img/2025-04-06-221930.webp" alt="Linux" width="99%"/></a>
+    <a href="https://github.com/canmi21/openjlc" target="_blank"><img src="https://raw.githubusercontent.com/canmi21/openjlc/refs/heads/main/img/2025-04-06-221930.webp" alt="Auto Output Naming" width="99%"/></a>
   </p>
 </div>
 
@@ -77,6 +79,15 @@ Drill_PTH_Through_Via_GBR: "(?i).*\\bVIA\\b.*\\.GBR$"
 Drill_NPTH_Through_GBR: "(?i).*\\bNPTH\\b.*\\.GBR$"
 ```
 
+## 🖱️ Right-Click Integration on Windows  
+On Windows, OpenJLC supports seamless right-click processing for `.zip` Gerber archives. With just one click, you can get clean and correctly named outputs — even after processing by the Windows file system.
+
+<div align="center">
+  <p>
+    <a href="https://github.com/canmi21/openjlc" target="_blank"><img src="https://raw.githubusercontent.com/canmi21/openjlc/refs/heads/main/img/2025-04-07-004511.webp" alt="Windows Context Menu Integration - Step 1" width="99%"/></a>
+    <a href="https://github.com/canmi21/openjlc" target="_blank"><img src="https://raw.githubusercontent.com/canmi21/openjlc/refs/heads/main/img/2025-04-07-004544.webp" alt="Windows Context Menu Integration - Step 2" width="99%"/></a>
+  </p>
+</div>
 
 [Old Version](https://github.com/canmi21/openjlc/tree/dev)
 
