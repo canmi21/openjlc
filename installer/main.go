@@ -134,21 +134,13 @@ func install(release Release, logger *log.Logger, integrateRightClick bool) {
 	}
 
 	if integrateRightClick {
-		zipKey, _, err := registry.CreateKey(registry.CLASSES_ROOT, `.zip\OpenWithProgids`, registry.ALL_ACCESS)
+		zipKey, _, err := registry.CreateKey(registry.CLASSES_ROOT, `.zip\shell\Open with OpenJLC\command`, registry.ALL_ACCESS)
 		if err != nil {
-			logger.Println("Failed to create .zip key: ", err)
+			logger.Println("Failed to create .zip shell key: ", err)
 			return
 		}
 		defer zipKey.Close()
-		zipKey.SetStringValue("OpenJLC.zip", "")
-
-		appKey, _, err := registry.CreateKey(registry.CLASSES_ROOT, `OpenJLC.zip\shell\Open with OpenJLC\command`, registry.ALL_ACCESS)
-		if err != nil {
-			logger.Println("Failed to create command key: ", err)
-			return
-		}
-		defer appKey.Close()
-		appKey.SetStringValue("", "\""+installPath+"\" \"%1\"")
+		zipKey.SetStringValue("", "\""+installPath+"\" \"%1\"")
 	}
 
 	logger.Println("Installed to: ", installPath)
