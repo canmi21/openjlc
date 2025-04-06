@@ -5,11 +5,11 @@
 
   <h3>OpenJLC</h3>
   <p>
-    <a href="https://crates.io/crates/openjlc"><img src="hhttps://img.shields.io/aur/version/:openjlc?color=3498ca&labelColor=black&style=flat-square&logo=archlinux&label=Aur" /></a>
     <a href="https://crates.io/crates/openjlc"><img src="https://img.shields.io/crates/dv/openjlc?color=cd9c80&labelColor=black&style=flat-square&logo=rust&label=Crates.io" /></a>
+    <a href="https://aur.archlinux.org/packages/openjlc"><img src="https://img.shields.io/aur/version/openjlc?color=3498ca&labelColor=black&style=flat-square&logo=archlinux&logoColor=FFFFFF&label=Aur" /></a>
     <a href="https://github.com/canmi21/openjlc/graphs/contributors"><img src="https://img.shields.io/github/stars/canmi21/openjlc?color=ffcb47&labelColor=black&style=flat-square&logo=github&label=Stars" /></a>
     <a href="https://github.com/canmi21/openjlc/graphs/contributors"><img src="https://img.shields.io/github/contributors/canmi21/openjlc?style=flat-square&logo=github&label=Contributors&labelColor=black" /></a>
-    <a href="ht?color=ffcb47&labelColor=black&style=flat-square&logo=githubtps://github.com/canmi21/openjlc/releases"><img src="https://img.shields.io/github/downloads/canmi21/openjlc/total?color=369eff&labelColor=black&logo=github&style=flat-square&label=Releases" /></a>
+    <a href="ht?color=ffcb47&labelColor=black&style=flat-square&logo=githubtps://github.com/canmi21/openjlc/releases"><img src="https://img.shields.io/github/downloads/canmi21/openjlc/total?color=9ac813&labelColor=black&logo=github&style=flat-square&label=Releases" /></a>
     <br />
     <br />
     <a href="https://github.com/canmi21/openjlc" target="_blank"><img src="https://raw.githubusercontent.com/canmi21/openjlc/refs/heads/main/img/2025-04-06-170618.webp" alt="Linux" width="49%"/></a>
