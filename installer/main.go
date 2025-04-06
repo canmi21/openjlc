@@ -6,9 +6,10 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"runtime"
+
+	"golang.org/x/sys/windows/registry"
 
 	"fyne.io/fyne/v2"
 	"fyne.io/fyne/v2/app"
@@ -103,17 +104,34 @@ func install(release Release, logger *log.Logger) {
 		return
 	}
 
-	appData := os.Getenv("APPDATA")
-	installPath := filepath.Join(appData, "OpenJLC", "openjlc.exe")
-	os.MkdirAll(filepath.Dir(installPath), 0755)
+	installDir := "C:\\Program Files\\OpenJLC"
+	if _, err := os.Stat("D:\\Program Files"); err == nil {
+		installDir = "D:\\Program Files\\OpenJLC"
+	}
+
+	installPath := filepath.Join(installDir, "openjlc.exe")
+	os.MkdirAll(installDir, 0755)
 	os.Rename(tempPath, installPath)
 
-	pathEnv := os.Getenv("PATH")
-	newPath := pathEnv + ";" + filepath.Dir(installPath)
-	os.Setenv("PATH", newPath)
+	k, err := registry.OpenKey(registry.LOCAL_MACHINE, `SYSTEM\CurrentControlSet\Control\Session Manager\Environment`, registry.QUERY_VALUE|registry.SET_VALUE)
+	if err != nil {
+		logger.Println("Failed to open registry: ", err)
+		return
+	}
+	defer k.Close()
 
-	cmd := "setx PATH \"" + newPath + "\""
-	exec.Command("cmd", "/C", cmd).Run()
+	pathEnv, _, err := k.GetStringValue("Path")
+	if err != nil {
+		logger.Println("Failed to read PATH: ", err)
+		return
+	}
+
+	newPath := pathEnv + ";" + installDir
+	err = k.SetStringValue("Path", newPath)
+	if err != nil {
+		logger.Println("Failed to update PATH: ", err)
+		return
+	}
 
 	logger.Println("Installed to: ", installPath)
 }
