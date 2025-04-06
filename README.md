@@ -39,10 +39,47 @@ Feel free to try it using the following methods:
   <tr><td>📣 <b>Contribute / Feedback</b></td><td>Create issues, pull requests, or just ⭐ the repo to support us!</td></tr>
 </table> 
 
-## ✨ Features
+## ⚡️ Lightning-Fast Speed  
+Powered by Rust's high performance, OpenJLC can convert an 8-layer PCB from Altium in under 500ms.
+<div align="center">
+  <p>
+    <a href="https://github.com/canmi21/openjlc" target="_blank"><img src="https://raw.githubusercontent.com/canmi21/openjlc/refs/heads/main/img/2025-04-06-222144.webp" alt="Linux" width="99%"/></a>
+  </p>
+</div>
+
+## 🧩 Uniform Output Naming  
+We provide powerful regular expression rules to auto-analyze and rename output files, giving you a clean and consistent output structure.
+<div align="center">
+  <p>
+    <a href="https://github.com/canmi21/openjlc" target="_blank"><img src="https://raw.githubusercontent.com/canmi21/openjlc/refs/heads/main/img/2025-04-06-221930.webp" alt="Linux" width="99%"/></a>
+  </p>
+</div>
+
+## 🛠️ Extra Drill File Handling  
+Unlike other conversion tools, OpenJLC supports auto-detection and classification of drill files — no manual steps required.
+
+**Altium**
+```yaml
+Drill_NPTH_Through: "(?i).*slot\\s?h?oles.*\\.txt$"
+Drill_PTH_Through: "(?i).*round\\s?h?oles.*\\.txt$"
+Drill_PTH_Through_Via: "(?i)\\.REP$|.*via.*\\.txt$"
+Drill_PTH_Through_GBR: "(?i)\\.GD1$"
+Drill_PTH_Through_Via_GBR: "(?i)\\.GG1$"
+```
+
+**KiCad**
+```yaml
+Drill_PTH_Through: "(?i)(?!.*NPTH).*\\.DRL$"
+Drill_PTH_Through_Via: "(?i).*\\bVIA\\b.*\\.DRL$"
+Drill_NPTH_Through: "(?i).*\\bNPTH\\b.*\\.DRL$"
+Drill_PTH_Through_GBR: "(?i)^[^N]*PTH[^N]*\\.GBR$"
+Drill_PTH_Through_Via_GBR: "(?i).*\\bVIA\\b.*\\.GBR$"
+Drill_NPTH_Through_GBR: "(?i).*\\bNPTH\\b.*\\.GBR$"
+```
+
 
 [Old Version](https://github.com/canmi21/openjlc/tree/dev)
 
-## Star History
+##  ✨ Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=canmi21/openjlc&type=Date)](https://www.star-history.com/#canmi21/openjlc&Date)
