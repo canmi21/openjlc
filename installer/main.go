@@ -148,28 +148,34 @@ func install(release Release, logger *log.Logger, integrateRightClick bool) {
 
 func main() {
 	a := app.New()
-	w := a.NewWindow("installer")
-	w.Resize(fyne.NewSize(300, 250))
+	w := a.NewWindow("OpenJLC Installer")
+	w.Resize(fyne.NewSize(400, 300))
 
 	logFile, _ := os.OpenFile("install.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	defer logFile.Close()
-	logger := log.New(logFile, "INFO: ", log.LstdFlags)
+	logger := log.New(logFile, "> ", log.LstdFlags)
 
 	release := fetchLatestTag()
 	var content *fyne.Container
 
 	if release.TagName == "v0.0.0" {
-		errorLabel := widget.NewLabel("Please connect to the Internet")
-		content = container.NewCenter(errorLabel)
+		errorLabel := widget.NewLabel("No Internet connection detected")
+		errorLabel.Alignment = fyne.TextAlignCenter
+		content = container.NewVBox(
+			layout.NewSpacer(),
+			errorLabel,
+			layout.NewSpacer(),
+		)
 	} else {
-		label := widget.NewLabel("OpenJLC " + release.TagName)
-		rightClickCheck := widget.NewCheck("Integrated right-click menu", nil)
+		title := widget.NewLabelWithStyle("OpenJLC "+release.TagName, fyne.TextAlignCenter, fyne.TextStyle{Bold: true})
+		rightClickCheck := widget.NewCheck("Add to right-click menu for .zip", nil)
 		rightClickCheck.Checked = true
-		agreeCheck := widget.NewCheck("I agree to comply with the community open-source license and use it only for learning purposes", nil)
+
+		agreeCheck := widget.NewCheck("I agree to the community open-source license", nil)
 		installButton := widget.NewButton("Install", nil)
-		installButton.Disable()
 		cancelButton := widget.NewButton("Cancel", func() { a.Quit() })
 
+		installButton.Disable()
 		agreeCheck.OnChanged = func(checked bool) {
 			if checked {
 				installButton.Enable()
@@ -178,17 +184,21 @@ func main() {
 			}
 		}
 
+		statusLabel := widget.NewLabel("")
 		installButton.OnTapped = func() {
-			install(release, logger, rightClickCheck.Checked)
-			a.Quit()
+			statusLabel.SetText("Installing...")
+			go func() {
+				install(release, logger, rightClickCheck.Checked)
+				a.Quit()
+			}()
 		}
 
 		content = container.NewVBox(
 			layout.NewSpacer(),
-			container.NewCenter(label),
+			title,
 			rightClickCheck,
-			widget.NewLabel(""),
 			agreeCheck,
+			statusLabel,
 			container.NewHBox(
 				layout.NewSpacer(),
 				installButton,
@@ -199,6 +209,6 @@ func main() {
 		)
 	}
 
-	w.SetContent(content)
+	w.SetContent(container.NewPadded(content))
 	w.ShowAndRun()
 }
