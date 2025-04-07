@@ -32,28 +32,48 @@ jobs:
           echo "version=$VERSION" >> $GITHUB_OUTPUT
       
       - name: Setup Rust
+        if: matrix.os == 'windows-latest'
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
       
+      - name: Cache Rust dependencies
+        if: matrix.os == 'windows-latest'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-rust-${{ matrix.target }}-${{ hashFiles('Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-${{ matrix.target }}-
+      
       - name: Build
+        if: matrix.os == 'windows-latest'
         shell: bash
         run: |
           cargo build --release --target ${{ matrix.target }}
           mkdir -p artifacts
-          if [ "$RUNNER_OS" == "Windows" ]; then
-            cp target/${{ matrix.target }}/release/openjlc.exe artifacts/openjlc-${{ matrix.target }}.exe
-          else
-            cp target/${{ matrix.target }}/release/openjlc artifacts/openjlc-${{ matrix.target }}
-          fi
+          cp target/${{ matrix.target }}/release/openjlc.exe artifacts/openjlc-${{ matrix.target }}.exe
       
-      - name: Setup Go for Installer (Linux only)
+      - name: Setup Go for Installer
         if: matrix.target == 'x86_64-unknown-linux-gnu'
         uses: actions/setup-go@v5
         with:
           go-version: 'stable'
       
-      - name: Install Go dependencies and Mingw-w64 (Linux only)
+      - name: Cache Go modules
+        if: matrix.target == 'x86_64-unknown-linux-gnu'
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('installer/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      
+      - name: Install Go dependencies and Mingw-w64
         if: matrix.target == 'x86_64-unknown-linux-gnu'
         shell: bash
         run: |
@@ -62,18 +82,18 @@ jobs:
           go mod tidy
         working-directory: installer/
       
-      - name: Build Go Installer for Windows (Linux only)
+      - name: Build Go Installer for Windows
         if: matrix.target == 'x86_64-unknown-linux-gnu'
         shell: bash
         run: |
           GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc go build -x -ldflags="-H=windowsgui" -o installer.exe
           mv installer.exe ../artifacts/openjlc-x86_64-i686-pc-installer.exe
         working-directory: installer/
-      
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: openjlc-${{ matrix.target }}
+          name: "${{ matrix.target == 'x86_64-unknown-linux-gnu' && 'openjlc-installer' || format('openjlc-{0}', matrix.target) }}"
           path: artifacts/
 
   build-2:
@@ -85,7 +105,9 @@ jobs:
             target: x86_64-apple-darwin
           - os: macos-latest
             target: aarch64-apple-darwin
-      max-parallel: 2
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+      max-parallel: 3
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -95,12 +117,27 @@ jobs:
         with:
           targets: ${{ matrix.target }}
       
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-rust-${{ matrix.target }}-${{ hashFiles('Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-rust-${{ matrix.target }}-
+      
       - name: Build
         shell: bash
         run: |
           cargo build --release --target ${{ matrix.target }}
           mkdir -p artifacts
-          cp target/${{ matrix.target }}/release/openjlc artifacts/openjlc-${{ matrix.target }}
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            cp target/${{ matrix.target }}/release/openjlc.exe artifacts/openjlc-${{ matrix.target }}.exe
+          else
+            cp target/${{ matrix.target }}/release/openjlc artifacts/openjlc-${{ matrix.target }}
+          fi
       
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
