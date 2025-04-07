@@ -128,8 +128,21 @@ And reload the config:
 source ~/.config/fish/config.fish
 ```
 
-[Old Version](https://github.com/canmi21/openjlc/tree/dev)
+## ⭐ Contribute
+If you are just a user of OpenJLC, please give us a Star. If you’d like to participate in development, you can consider the following steps:  
+The main program is written in Rust:  
+```bash
+cargo run
+cargo build
+cargo install --path .
+```  
+The Windows installer is written in Go:  
+```bash
+GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc go build -x -ldflags="-H=windowsgui" -o installer.exe
+```
 
-##  ✨ Star History
+Additionally, there is an old version written in Python [here](https://github.com/canmi21/openjlc/tree/dev). The source code is still visible but is no longer maintained or used.
+
+## ✨ Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=canmi21/openjlc&type=Date)](https://www.star-history.com/#canmi21/openjlc&Date)
