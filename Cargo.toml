@@ -1,6 +1,6 @@
 [package]
 name = "openjlc"
-version = "2.21.10"
+version = "2.23.0"
 edition = "2024"
 build = "build.rs"
 authors = ["Canmi(Canmi21)<t@canmi.icu>"]
