@@ -89,6 +89,11 @@ On Windows, OpenJLC supports seamless right-click processing for `.zip` Gerber a
   </p>
 </div>
 
+## 📦 Easy GUI Installer for Windows
+We offer a dedicated Windows GUI installer to simplify setup. With just a few clicks, you can install, update, or uninstall OpenJLC — all without touching the command line.
+
+<div align="center"> <p> <a href="https://github.com/canmi21/openjlc" target="_blank"> <img src="https://raw.githubusercontent.com/canmi21/openjlc/refs/heads/main/img/5E7ABC2AB8CA3DCA8EA4E872AECB30F0.webp" alt="Windows Installer - Step 1" width="49%"/> </a> <a href="https://github.com/canmi21/openjlc" target="_blank"> <img src="https://raw.githubusercontent.com/canmi21/openjlc/refs/heads/main/img/CA8D9D363777D6D970035852BEC043DB.webp" alt="Windows Installer - Step 2" width="49%"/> </a> <a href="https://github.com/canmi21/openjlc" target="_blank"> <img src="https://raw.githubusercontent.com/canmi21/openjlc/refs/heads/main/img/6BC1EECDD7A4D6699F5F127B3843FFED.webp" alt="Windows Installer - Step 3" width="99%"/> </a> </p> </div>
+
 [Old Version](https://github.com/canmi21/openjlc/tree/dev)
 
 ##  ✨ Star History
