@@ -32,3 +32,5 @@ package() {
   install -Dm755 target/release/openjlc "$pkgdir/usr/bin/openjlc"
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }
+
+# makepkg -si
