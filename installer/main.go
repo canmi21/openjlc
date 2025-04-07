@@ -178,6 +178,66 @@ func install(release Release, logger *log.Logger, integrateRightClick bool, prog
 	content.Refresh()
 }
 
+func uninstall(logger *log.Logger, statusLabel *widget.Label, content *fyne.Container, window fyne.Window) {
+	installDir := "C:\\Program Files\\OpenJLC"
+	if _, err := os.Stat("D:\\Program Files\\OpenJLC"); err == nil {
+		installDir = "D:\\Program Files\\OpenJLC"
+	}
+
+	os.RemoveAll(installDir)
+
+	k, err := registry.OpenKey(registry.LOCAL_MACHINE, `SYSTEM\CurrentControlSet\Control\Session Manager\Environment`, registry.QUERY_VALUE|registry.SET_VALUE)
+	if err != nil {
+		logger.Println("Failed to open registry: ", err)
+		statusLabel.SetText("Failed to update registry")
+		return
+	}
+	defer k.Close()
+
+	pathEnv, _, err := k.GetStringValue("Path")
+	if err != nil {
+		logger.Println("Failed to read PATH: ", err)
+		statusLabel.SetText("Failed to read PATH")
+		return
+	}
+
+	newPath := ""
+	for _, p := range filepath.SplitList(pathEnv) {
+		if p != installDir {
+			if newPath == "" {
+				newPath = p
+			} else {
+				newPath += ";" + p
+			}
+		}
+	}
+	err = k.SetStringValue("Path", newPath)
+	if err != nil {
+		logger.Println("Failed to update PATH: ", err)
+		statusLabel.SetText("Failed to update PATH")
+		return
+	}
+
+	err = registry.DeleteKey(registry.CLASSES_ROOT, `.zip\shell\Open with OpenJLC\command`)
+	if err != nil {
+		logger.Println("Failed to remove right-click integration: ", err)
+	}
+
+	err = registry.DeleteKey(registry.CLASSES_ROOT, `.zip\shell\Open with OpenJLC`)
+	if err != nil {
+		logger.Println("Failed to clean up registry: ", err)
+	}
+
+	logger.Println("Uninstalled OpenJLC")
+	content.Objects = []fyne.CanvasObject{
+		layout.NewSpacer(),
+		widget.NewLabelWithStyle("Uninstallation Complete", fyne.TextAlignCenter, fyne.TextStyle{Bold: true}),
+		widget.NewButton("Finish", func() { window.Close() }),
+		layout.NewSpacer(),
+	}
+	content.Refresh()
+}
+
 func main() {
 	a := app.New()
 	w := a.NewWindow("OpenJLC Installer")
@@ -185,7 +245,7 @@ func main() {
 
 	logFile, _ := os.OpenFile("install.log", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 	defer logFile.Close()
-	logger := log.New(logFile, "> ", log.LstdFlags)
+	logger := log.New(logFile, "INFO: ", log.LstdFlags)
 
 	release := fetchLatestTag()
 	var content *fyne.Container
@@ -204,6 +264,7 @@ func main() {
 		rightClickCheck.Checked = true
 		agreeCheck := widget.NewCheck("I agree to the community open-source license", nil)
 		installButton := widget.NewButton("Install", nil)
+		uninstallButton := widget.NewButton("Uninstall", nil)
 		cancelButton := widget.NewButton("Cancel", func() { a.Quit() })
 		progress := widget.NewProgressBar()
 		statusLabel := widget.NewLabel("")
@@ -218,11 +279,16 @@ func main() {
 		}
 
 		installButton.OnTapped = func() {
-			statusLabel.SetText("Installing...")
+			//statusLabel.SetText("Installing...")
 			progress.SetValue(0)
 			content.Objects = append(content.Objects, progress)
 			content.Refresh()
 			go install(release, logger, rightClickCheck.Checked, progress, statusLabel, content, w)
+		}
+
+		uninstallButton.OnTapped = func() {
+			statusLabel.SetText("Uninstalling...")
+			go uninstall(logger, statusLabel, content, w)
 		}
 
 		content = container.NewVBox(
@@ -234,6 +300,7 @@ func main() {
 			container.NewHBox(
 				layout.NewSpacer(),
 				installButton,
+				uninstallButton,
 				cancelButton,
 				layout.NewSpacer(),
 			),
