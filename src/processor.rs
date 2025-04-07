@@ -54,11 +54,41 @@ pub fn process_files_with_rule(yaml_name: &str) -> Result<(), Box<dyn Error>> {
                     format!("{}.{}", name_clone, ext)
                 };
                 
-                let dest_path = target_dir.join(dest_name);
+                let dest_path = target_dir.join(&dest_name);
                 fs::copy(&src_path, &dest_path)?;
                 log::log(&format!("+ Linked '{}' -> '{}'", 
                     src_path.file_name().unwrap().to_str().unwrap(),
                     dest_path.display()));
+                    
+                let new_name = match name_clone.as_str() {
+                    "Gerber_TopSolderMaskLayer" => "Gerber_TopSolderMaskLayer.GTS",
+                    "Gerber_TopSilkscreenLayer" => "Gerber_TopSilkscreenLayer.GTO",
+                    "Gerber_TopPasteMaskLayer" => "Gerber_TopPasteMaskLayer.GTP",
+                    "Gerber_TopLayer" => "Gerber_TopLayer.GTL",
+                    "Gerber_InnerLayer2" => "Gerber_InnerLayer2.G2",
+                    "Gerber_InnerLayer1" => "Gerber_InnerLayer1.G1",
+                    "Gerber_InnerLayer3" => "Gerber_InnerLayer3.G3",
+                    "Gerber_InnerLayer4" => "Gerber_InnerLayer4.G4",
+                    "Gerber_InnerLayer5" => "Gerber_InnerLayer5.G5",
+                    "Gerber_InnerLayer6" => "Gerber_InnerLayer6.G6",
+                    "Gerber_BottomSolderMaskLayer" => "Gerber_BottomSolderMaskLayer.GBS",
+                    "Gerber_BottomSilkscreenLayer" => "Gerber_BottomSilkscreenLayer.GBP",
+                    "Gerber_BottomPasteMaskLayer" => "Gerber_BottomPasteMaskLayer.GPB",
+                    "Gerber_BottomLayer" => "Gerber_BottomLayer.GBL",
+                    "Gerber_BoardOutlineLayer" => "Gerber_BoardOutlineLayer.GM13",
+                    "Drill_PTH_Through" => "Drill_PTH_Through.DRL",
+                    "Drill_PTH_Through_Via" => "Drill_PTH_Through_Via.DRL",
+                    "Drill_NPTH_Through" => "Drill_NPTH_Through.DRL",
+                    _ => dest_name.as_str(),
+                };
+                
+                if new_name != dest_name.as_str() {
+                    let new_dest_path = target_dir.join(new_name);
+                    fs::rename(&dest_path, &new_dest_path)?;
+                    log::log(&format!("+ Match '{}' -> '{}'", 
+                        dest_path.display(),
+                        new_dest_path.display()));
+                }
             }
         }
     }
