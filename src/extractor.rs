@@ -1,6 +1,6 @@
-use std::fs::{create_dir_all, File};
+use std::fs::{create_dir_all, read_dir, remove_dir_all, rename, File};
 use std::io::{self};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use zip::read::ZipArchive;
 
 pub fn extract_zip_to_temp(temp_dir: &Path, zip_file: &Path) -> io::Result<()> {
@@ -21,6 +21,29 @@ pub fn extract_zip_to_temp(temp_dir: &Path, zip_file: &Path) -> io::Result<()> {
             let mut output_file = File::create(file_path)?;
             io::copy(&mut file, &mut output_file)?;
         }
+    }
+
+    let entries: Vec<PathBuf> = read_dir(temp_dir)?
+        .filter_map(|e| e.ok().map(|e| e.path()))
+        .collect();
+
+    if entries.len() == 1 && entries[0].is_dir() {
+        let inner_dir = &entries[0];
+        for entry in read_dir(inner_dir)? {
+            let entry = entry?;
+            let from = entry.path();
+            let file_name = entry.file_name();
+            let to = temp_dir.join(file_name);
+            if to.exists() {
+                if to.is_dir() {
+                    remove_dir_all(&to)?;
+                } else {
+                    std::fs::remove_file(&to)?;
+                }
+            }
+            rename(from, to)?;
+        }
+        remove_dir_all(inner_dir)?;
     }
 
     Ok(())
