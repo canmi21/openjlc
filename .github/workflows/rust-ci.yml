@@ -47,6 +47,29 @@ jobs:
             cp target/${{ matrix.target }}/release/openjlc artifacts/openjlc-${{ matrix.target }}
           fi
       
+      - name: Setup Go for Installer (Linux only)
+        if: matrix.target == 'x86_64-unknown-linux-gnu'
+        uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+      
+      - name: Install Go dependencies and Mingw-w64 (Linux only)
+        if: matrix.target == 'x86_64-unknown-linux-gnu'
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y mingw-w64
+          go mod tidy
+        working-directory: installer/
+      
+      - name: Build Go Installer for Windows (Linux only)
+        if: matrix.target == 'x86_64-unknown-linux-gnu'
+        shell: bash
+        run: |
+          GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc go build -x -ldflags="-H=windowsgui" -o installer.exe
+          mv installer.exe ../artifacts/openjlc-x86_64-i686-pc-installer.exe
+        working-directory: installer/
+      
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
