@@ -94,6 +94,40 @@ We offer a dedicated Windows GUI installer to simplify setup. With just a few cl
 
 <div align="center"> <p> <a href="https://github.com/canmi21/openjlc" target="_blank"> <img src="https://raw.githubusercontent.com/canmi21/openjlc/refs/heads/main/img/5E7ABC2AB8CA3DCA8EA4E872AECB30F0.webp" alt="Windows Installer - Step 1" width="49%"/> </a> <a href="https://github.com/canmi21/openjlc" target="_blank"> <img src="https://raw.githubusercontent.com/canmi21/openjlc/refs/heads/main/img/CA8D9D363777D6D970035852BEC043DB.webp" alt="Windows Installer - Step 2" width="49%"/> </a> <a href="https://github.com/canmi21/openjlc" target="_blank"> <img src="https://raw.githubusercontent.com/canmi21/openjlc/refs/heads/main/img/6BC1EECDD7A4D6699F5F127B3843FFED.webp" alt="Windows Installer - Step 3" width="99%"/> </a> </p> </div>
 
+## ❓ FAQ
+**Q: PowerShell says `openjlc` is not recognized as a command?**   
+**A:** This usually means the OpenJLC installation path is not added to your system's environment variables.  
+Please follow the instructions shown in the image below to add it. Restart PowerShell after applying the changes.
+
+<div align="center">
+  <p>
+    <a href="https://github.com/canmi21/openjlc" target="_blank">
+      <img src="https://raw.githubusercontent.com/canmi21/openjlc/refs/heads/main/img/2025-04-07-104139.webp" alt="Add to System Environment Variables" width="99%"/>
+    </a>
+  </p>
+</div>
+
+**Q: What if I'm using Linux or macOS?**  
+**A:** Make sure the Cargo binary directory (usually `$HOME/.cargo/bin`) is added to your shell's environment variables.  
+For example, if you're using `bash`, `zsh` or `fish`, you can add the following line to your `~/.bashrc`, `~/.zshrc` `~/.config/fish/config.fish` file:
+
+```bash
+export PATH="$HOME/.cargo/bin:$PATH"
+```
+Then reload your shell or run:
+```bash
+source ~/.bashrc   # or source ~/.zshrc
+```
+   
+If you're using fish shell, add the path like this:
+```fish
+set -U fish_user_paths /home/canmi/.cargo/bin $fish_user_paths
+```
+And reload the config:
+```fish
+source ~/.config/fish/config.fish
+```
+
 [Old Version](https://github.com/canmi21/openjlc/tree/dev)
 
 ##  ✨ Star History
