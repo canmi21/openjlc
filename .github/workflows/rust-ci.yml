@@ -87,6 +87,7 @@ jobs:
         shell: bash
         run: |
           GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc go build -x -ldflags="-H=windowsgui" -o installer.exe
+          mkdir -p ../artifacts
           mv installer.exe ../artifacts/openjlc-x86_64-i686-pc-installer.exe
         working-directory: installer/
 
