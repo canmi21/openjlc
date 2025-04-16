@@ -147,4 +147,10 @@ Additionally, there is an old version written in Python [here](https://github.co
 
 ![Alt](https://repobeats.axiom.co/api/embed/92d527ae3220e560f72f3a4bb9c9b24917ccb8fc.svg "Repobeats analytics image")
 
-[![Star History Chart](https://api.star-history.com/svg?repos=canmi21/openjlc&type=Timeline)](https://github.com/canmi21)
+<a href="https://github.com/canmi21">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=canmi21/openjlc&type=Timeline&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=canmi21/openjlc&type=Timeline&type=Timeline" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=canmi21/openjlc&type=Timeline" />
+  </picture>
+</a>
