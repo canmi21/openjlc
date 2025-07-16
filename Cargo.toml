@@ -21,8 +21,10 @@ version = "0.1.0"
 copyright = "© 2025 Canmi"
 category = "DeveloperTool"
 
-[package.metadata.bundle.macos.document_types]
-zip_archive = { name = "ZIP Archive", role = "Viewer", types = ["public.zip-archive"] }
+[[package.metadata.bundle.macos.document_types]]
+name       = "ZIP Archive"
+role       = "Viewer"
+extensions = ["zip"]
 
 [dependencies]
 chrono = "0.4"

@@ -1,0 +1,4 @@
+# .cargo/config.toml
+[target.x86_64-apple-darwin]
+linker = "clang"
+rustflags = ["-C", "link-args=-target x86_64-apple-darwin"]

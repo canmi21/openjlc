@@ -14,6 +14,7 @@
     <a href="https://github.com/canmi21/openjlc/releases"><img src="https://img.shields.io/github/downloads/canmi21/openjlc/total?color=9ac813&labelColor=black&logo=github&style=flat-square&label=Releases" /></a>
     <br />
     <br />
+    <a href="https://github.com/canmi21/openjlc" target="_blank"><img src="https://raw.githubusercontent.com/canmi21/openjlc/refs/heads/main/img/21c27d0a834b09710c25047a6c2dc004.png" alt="MacOS" width="99%"/></a>
     <a href="https://github.com/canmi21/openjlc" target="_blank"><img src="https://raw.githubusercontent.com/canmi21/openjlc/refs/heads/main/img/2025-04-06-170618.webp" alt="Linux" width="49%"/></a>
     <a href="https://github.com/canmi21/openjlc" target="_blank"><img src="https://raw.githubusercontent.com/canmi21/openjlc/refs/heads/main/img/2025-04-06-171116.webp" alt="Windows" width="49%"/></a>
     <br />
