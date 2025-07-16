@@ -13,6 +13,17 @@ readme = "README.md"
 keywords = ["kicad","altium","openjlc", "fuckjlc", "transjlc"]
 categories = ["command-line-utilities", "parsing", "development-tools"]
 
+[package.metadata.bundle]
+name = "OpenJLC"
+identifier = "icu.canmi.openjlc"
+icon = ["icon.icns"]
+version = "0.1.0"
+copyright = "© 2025 Canmi"
+category = "DeveloperTool"
+
+[package.metadata.bundle.macos.document_types]
+zip_archive = { name = "ZIP Archive", role = "Viewer", types = ["public.zip-archive"] }
+
 [dependencies]
 chrono = "0.4"
 zip = "4"
