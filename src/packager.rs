@@ -1,10 +1,12 @@
+/* src/packager.rs */
+
+use crate::cli::get_input_file_path;
+use crate::config::get_target_dir;
+use crate::log;
+use crate::validator::LAYER_COUNT;
 use std::fs;
 use std::fs::File;
 use zip::write::{FileOptions, ZipWriter};
-use crate::config::get_target_dir;
-use crate::cli::get_input_file_path;
-use crate::log;
-use crate::validator::LAYER_COUNT;
 
 pub fn package_target_dir(eda_type: &str) -> std::path::PathBuf {
     let target_dir = get_target_dir();
@@ -15,7 +17,9 @@ pub fn package_target_dir(eda_type: &str) -> std::path::PathBuf {
 
     let input_path = get_input_file_path().unwrap();
     let input_file_name = input_path.file_stem().unwrap().to_string_lossy();
-    let output_zip_name = format!("{}_{}_L{}.zip", input_file_name, eda_type, unsafe { LAYER_COUNT });
+    let output_zip_name = format!("{}_{}_L{}.zip", input_file_name, eda_type, unsafe {
+        LAYER_COUNT
+    });
     let output_path = input_path.parent().unwrap().join(output_zip_name);
 
     let file = File::create(&output_path).unwrap();
@@ -27,7 +31,8 @@ pub fn package_target_dir(eda_type: &str) -> std::path::PathBuf {
         let name = path.file_name().unwrap().to_string_lossy();
 
         if path.is_file() {
-            let options = FileOptions::<()>::default().compression_method(zip::CompressionMethod::Deflated);
+            let options =
+                FileOptions::<()>::default().compression_method(zip::CompressionMethod::Deflated);
             zip.start_file(name.to_string(), options).unwrap();
             let mut f = File::open(path).unwrap();
             std::io::copy(&mut f, &mut zip).unwrap();
@@ -35,6 +40,9 @@ pub fn package_target_dir(eda_type: &str) -> std::path::PathBuf {
     }
 
     zip.finish().unwrap();
-    log::log(&format!("+ Packaged target directory into '{}'", output_path.display()));
+    log::log(&format!(
+        "+ Packaged target directory into '{}'",
+        output_path.display()
+    ));
     output_path
 }
