@@ -1,3 +1,5 @@
+/* src/cli.rs */
+
 use std::env;
 use std::path::{Path, PathBuf};
 
