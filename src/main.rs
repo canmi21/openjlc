@@ -1,21 +1,25 @@
-use std::env;
-use sys_info;
+/* src/main.rs */
+
+use lazy_static::lazy_static;
+use openjlc::cleaner::clear_directories;
+use openjlc::cli::get_input_file_path;
+use openjlc::config::{
+    check_and_download_rule_files, get_report_dir, get_target_dir, get_temp_dir,
+};
+use openjlc::error::report_error;
+use openjlc::extractor::extract_zip_to_temp;
+use openjlc::identifier::{EDATool, identify_eda_files};
+use openjlc::injector::inject_headers;
 use openjlc::log;
+use openjlc::packager::package_target_dir;
+use openjlc::processor::process_files_with_rule;
+use openjlc::utils::{create_header_yaml, create_pcb_order_file};
+use openjlc::validator::validate_target_directory;
+use rfd::MessageDialog;
+use std::env;
 use std::sync::Mutex;
 use std::time::Instant;
-use lazy_static::lazy_static;
-use openjlc::cli::get_input_file_path;
-use openjlc::config::{get_temp_dir, get_target_dir, get_report_dir, check_and_download_rule_files};
-use openjlc::extractor::extract_zip_to_temp;
-use openjlc::identifier::{identify_eda_files, EDATool};
-use openjlc::utils::{create_pcb_order_file, create_header_yaml};
-use openjlc::processor::process_files_with_rule;
-use openjlc::validator::validate_target_directory;
-use openjlc::injector::inject_headers;
-use openjlc::packager::package_target_dir;
-use openjlc::cleaner::clear_directories;
-use openjlc::error::report_error;
-use rfd::MessageDialog;
+use sys_info;
 use webbrowser;
 
 lazy_static! {
@@ -52,7 +56,10 @@ async fn main() {
         std::fs::create_dir_all(&temp_dir).unwrap();
         log::log(&format!("+ Created temp at '{}'", temp_dir.display()));
     } else {
-        log::log(&format!("- Temp directory already exists at '{}'", temp_dir.display()));
+        log::log(&format!(
+            "- Temp directory already exists at '{}'",
+            temp_dir.display()
+        ));
     }
 
     let target_dir = get_target_dir();
@@ -60,7 +67,10 @@ async fn main() {
         std::fs::create_dir_all(&target_dir).unwrap();
         log::log(&format!("+ Created target at '{}'", target_dir.display()));
     } else {
-        log::log(&format!("- Target directory already exists at '{}'", target_dir.display()));
+        log::log(&format!(
+            "- Target directory already exists at '{}'",
+            target_dir.display()
+        ));
     }
 
     let report_dir = get_report_dir();
@@ -69,7 +79,10 @@ async fn main() {
         std::fs::create_dir_all(&report_dir).unwrap();
         log::log(&format!("+ Created report at '{}'", report_dir.display()));
     } else {
-        log::log(&format!("- Report directory already exists at '{}'", report_dir.display()));
+        log::log(&format!(
+            "- Report directory already exists at '{}'",
+            report_dir.display()
+        ));
     }
 
     if let Err(e) = check_and_download_rule_files().await {
@@ -87,11 +100,18 @@ async fn main() {
             report_error();
         }
 
-        log::log(&format!("+ Successfully extracted zip file to '{}'", temp_dir.display()));
+        log::log(&format!(
+            "+ Successfully extracted zip file to '{}'",
+            temp_dir.display()
+        ));
 
         match identify_eda_files(&temp_dir) {
             Ok((gerber_file, tool)) => {
-                log::log(&format!("+ Identified {} Gerber file: '{}'", eda_tool_to_str(&tool), gerber_file.display()));
+                log::log(&format!(
+                    "+ Identified {} Gerber file: '{}'",
+                    eda_tool_to_str(&tool),
+                    gerber_file.display()
+                ));
                 *EDA_TOOL.lock().unwrap() = tool.clone();
 
                 if let Err(e) = create_pcb_order_file(&target_dir) {
@@ -137,8 +157,13 @@ async fn main() {
 
                 let processing_time = processing_start_time.elapsed().as_millis();
                 let file_name = file_path.file_name().unwrap_or_default().to_string_lossy();
-                log::log(&format!("> Finished patch {}, took {}ms, dump at '{}'", file_name, processing_time, output_path.display()));
-                
+                log::log(&format!(
+                    "> Finished patch {}, took {}ms, dump at '{}'",
+                    file_name,
+                    processing_time,
+                    output_path.display()
+                ));
+
                 let log_path = log::get_log_file_path();
                 if let Ok(entries) = std::fs::read_dir(log_path.parent().unwrap()) {
                     let log_count = entries.filter(|e| e.is_ok()).count();
@@ -149,7 +174,8 @@ async fn main() {
                             .set_buttons(rfd::MessageButtons::YesNo)
                             .show();
                         if result == rfd::MessageDialogResult::Yes {
-                            webbrowser::open("https://github.com/canmi21/openjlc").unwrap_or_default();
+                            webbrowser::open("https://github.com/canmi21/openjlc")
+                                .unwrap_or_default();
                         }
                     }
                 }
@@ -159,7 +185,7 @@ async fn main() {
                     log::log(&format!("! Failed to identify EDA file: {}", e));
                     report_error();
                 }
-            },
+            }
         }
     } else {
         log::log("! No valid file path provided");
