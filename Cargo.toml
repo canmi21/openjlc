@@ -35,7 +35,7 @@ reqwest = { version = "0.12", features = ["blocking", "json"] }
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.9"
-fancy-regex = "0.14"
+fancy-regex = "0.16"
 notify-rust = "4.11"
 sys-info = "0.9"
 rfd = "0.15"
