@@ -1,12 +1,11 @@
-use std::fs;
+/* src/validator.rs */
+
 use crate::config::get_target_dir;
 use crate::error::report_error;
 use crate::log;
+use std::fs;
 
-const REQUIRED_FILES: &[&str] = &[
-    "PCB下单必读.txt",
-    "header.yaml",
-];
+const REQUIRED_FILES: &[&str] = &["PCB下单必读.txt", "header.yaml"];
 
 const REQUIRED_PREFIXES: &[&str] = &[
     "Gerber_BoardOutlineLayer",
@@ -19,14 +18,21 @@ pub static mut LAYER_COUNT: u32 = 0;
 pub fn validate_target_directory() -> bool {
     let target_dir = get_target_dir();
     if !target_dir.exists() {
-        log::log(&format!("! Target directory not found: '{}'", target_dir.display()));
+        log::log(&format!(
+            "! Target directory not found: '{}'",
+            target_dir.display()
+        ));
         report_error();
         return false;
     }
 
     let files: Vec<String> = match fs::read_dir(&target_dir) {
         Ok(entries) => entries
-            .filter_map(|entry| entry.ok().map(|e| e.file_name().to_string_lossy().into_owned()))
+            .filter_map(|entry| {
+                entry
+                    .ok()
+                    .map(|e| e.file_name().to_string_lossy().into_owned())
+            })
             .collect(),
         Err(e) => {
             log::log(&format!("! Failed to read target directory: {}", e));
@@ -55,26 +61,44 @@ pub fn validate_target_directory() -> bool {
     for file in &files {
         if file.starts_with("Gerber_TopLayer") {
             has_top_copper = true;
-            if !files.iter().any(|f| f.starts_with("Gerber_TopSolderMaskLayer")) {
+            if !files
+                .iter()
+                .any(|f| f.starts_with("Gerber_TopSolderMaskLayer"))
+            {
                 log::log("! Missing Gerber_TopSolderMaskLayer");
             }
-            if !files.iter().any(|f| f.starts_with("Gerber_TopSilkscreenLayer")) {
+            if !files
+                .iter()
+                .any(|f| f.starts_with("Gerber_TopSilkscreenLayer"))
+            {
                 log::log("! Missing Gerber_TopSilkscreenLayer");
             }
-            if !files.iter().any(|f| f.starts_with("Gerber_TopPasteMaskLayer")) {
+            if !files
+                .iter()
+                .any(|f| f.starts_with("Gerber_TopPasteMaskLayer"))
+            {
                 log::log("! Missing Gerber_TopPasteMaskLayer, consider checking it");
             }
         }
 
         if file.starts_with("Gerber_BottomLayer") {
             has_bottom_copper = true;
-            if !files.iter().any(|f| f.starts_with("Gerber_BottomSolderMaskLayer")) {
+            if !files
+                .iter()
+                .any(|f| f.starts_with("Gerber_BottomSolderMaskLayer"))
+            {
                 log::log("! Missing Gerber_BottomSolderMaskLayer");
             }
-            if !files.iter().any(|f| f.starts_with("Gerber_BottomSilkscreenLayer")) {
+            if !files
+                .iter()
+                .any(|f| f.starts_with("Gerber_BottomSilkscreenLayer"))
+            {
                 log::log("! Missing Gerber_BottomSilkscreenLayer");
             }
-            if !files.iter().any(|f| f.starts_with("Gerber_BottomPasteMaskLayer")) {
+            if !files
+                .iter()
+                .any(|f| f.starts_with("Gerber_BottomPasteMaskLayer"))
+            {
                 log::log("! Missing Gerber_BottomPasteMaskLayer, consider checking it");
             }
         }
