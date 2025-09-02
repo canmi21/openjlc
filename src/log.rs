@@ -1,12 +1,19 @@
+/* src/log.rs */
+
 use chrono::Local;
 use std::env;
-use std::fs::{create_dir_all, OpenOptions};
+use std::fs::{OpenOptions, create_dir_all};
 use std::io::Write;
 use std::path::PathBuf;
 
 pub fn get_log_file_path() -> PathBuf {
-    let home_dir = env::var("HOME").or_else(|_| env::var("USERPROFILE")).unwrap_or_else(|_| ".".to_string());
-    let log_dir = PathBuf::from(home_dir).join(".canmi").join("openjlc").join("logs");
+    let home_dir = env::var("HOME")
+        .or_else(|_| env::var("USERPROFILE"))
+        .unwrap_or_else(|_| ".".to_string());
+    let log_dir = PathBuf::from(home_dir)
+        .join(".canmi")
+        .join("openjlc")
+        .join("logs");
 
     if let Err(e) = create_dir_all(&log_dir) {
         eprintln!("Permission Denied: {}", e);
@@ -22,7 +29,11 @@ fn log_message(message: &str) {
 
     println!("{}", formatted_message);
 
-    if let Ok(mut file) = OpenOptions::new().append(true).create(true).open(get_log_file_path()) {
+    if let Ok(mut file) = OpenOptions::new()
+        .append(true)
+        .create(true)
+        .open(get_log_file_path())
+    {
         writeln!(file, "{}", formatted_message).ok();
     }
 }
