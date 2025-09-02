@@ -1,4 +1,6 @@
-use std::fs::{create_dir_all, read_dir, remove_dir_all, rename, File};
+/* src/extractor.rs */
+
+use std::fs::{File, create_dir_all, read_dir, remove_dir_all, rename};
 use std::io::{self};
 use std::path::{Path, PathBuf};
 use zip::read::ZipArchive;
