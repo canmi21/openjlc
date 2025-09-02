@@ -1,16 +1,24 @@
+/* src/processor.rs */
+
+use crate::config::{get_rule_dir, get_target_dir, get_temp_dir};
+use crate::error::report_error;
+use crate::log;
+use fancy_regex::RegexBuilder;
+use serde_yaml;
 use std::collections::HashMap;
 use std::error::Error;
 use std::fs;
-use fancy_regex::RegexBuilder;
-use serde_yaml;
-use crate::log;
-use crate::error::report_error;
-use crate::config::{get_rule_dir, get_temp_dir, get_target_dir};
 
 pub fn process_files_with_rule(yaml_name: &str) -> Result<(), Box<dyn Error>> {
     let rule_path = get_rule_dir().join(yaml_name);
-    let rule_content = fs::read_to_string(&rule_path).map_err(|e| format!("! Failed to read rule file '{}': {}", rule_path.display(), e))?;
-    
+    let rule_content = fs::read_to_string(&rule_path).map_err(|e| {
+        format!(
+            "! Failed to read rule file '{}': {}",
+            rule_path.display(),
+            e
+        )
+    })?;
+
     let rules: HashMap<String, String> = serde_yaml::from_str(&rule_content)
         .map_err(|e| format!("! Failed to parse YAML: {}", e))?;
 
@@ -37,14 +45,18 @@ pub fn process_files_with_rule(yaml_name: &str) -> Result<(), Box<dyn Error>> {
         }
 
         if found_paths.len() > 1 {
-            log::log(&format!("! Regex pattern '{}' matched multiple files: {:?}", pattern, found_paths));
+            log::log(&format!(
+                "! Regex pattern '{}' matched multiple files: {:?}",
+                pattern, found_paths
+            ));
             report_error();
         }
 
         if !found_paths.is_empty() {
             let name_clone = name.clone();
             for src_path in found_paths {
-                let ext = src_path.extension()
+                let ext = src_path
+                    .extension()
                     .and_then(|e| e.to_str())
                     .unwrap_or("")
                     .to_uppercase();
@@ -53,13 +65,15 @@ pub fn process_files_with_rule(yaml_name: &str) -> Result<(), Box<dyn Error>> {
                 } else {
                     format!("{}.{}", name_clone, ext)
                 };
-                
+
                 let dest_path = target_dir.join(&dest_name);
                 fs::copy(&src_path, &dest_path)?;
-                log::log(&format!("+ Linked '{}' -> '{}'", 
+                log::log(&format!(
+                    "+ Linked '{}' -> '{}'",
                     src_path.file_name().unwrap().to_str().unwrap(),
-                    dest_path.display()));
-                    
+                    dest_path.display()
+                ));
+
                 let new_name = match name_clone.as_str() {
                     "Gerber_TopSolderMaskLayer" => "Gerber_TopSolderMaskLayer.GTS",
                     "Gerber_TopSilkscreenLayer" => "Gerber_TopSilkscreenLayer.GTO",
@@ -81,17 +95,19 @@ pub fn process_files_with_rule(yaml_name: &str) -> Result<(), Box<dyn Error>> {
                     "Drill_NPTH_Through" => "Drill_NPTH_Through.DRL",
                     _ => dest_name.as_str(),
                 };
-                
+
                 if new_name != dest_name.as_str() {
                     let new_dest_path = target_dir.join(new_name);
                     fs::rename(&dest_path, &new_dest_path)?;
-                    log::log(&format!("+ Match '{}' -> '{}'", 
+                    log::log(&format!(
+                        "+ Match '{}' -> '{}'",
                         dest_path.display(),
-                        new_dest_path.display()));
+                        new_dest_path.display()
+                    ));
                 }
             }
         }
     }
-    
+
     Ok(())
 }
