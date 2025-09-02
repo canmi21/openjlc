@@ -1,3 +1,5 @@
+/* src/error.rs */
+
 use crate::cli::get_input_file_path;
 use crate::reporter::generate_report;
 
