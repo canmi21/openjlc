@@ -9,10 +9,11 @@ use openjlc::config::{
 use openjlc::error::report_error;
 use openjlc::extractor::extract_zip_to_temp;
 use openjlc::identifier::{EDATool, identify_eda_files};
-use openjlc::injector::inject_headers;
+// This is still not needed: use openjlc::injector::inject_headers;
 use openjlc::log;
 use openjlc::packager::package_target_dir;
 use openjlc::processor::process_files_with_rule;
+// RESTORED: We need create_header_yaml again to prevent the crash.
 use openjlc::utils::{create_header_yaml, create_pcb_order_file};
 use openjlc::validator::validate_target_directory;
 use rfd::MessageDialog;
@@ -51,6 +52,7 @@ async fn main() {
     log::log(&format!("+ OpenJLC v{} {}", version, timestamp));
     log::log(&format!("- OS: {} & Arch: {}", os, arch));
 
+    // ... (no changes in this section)
     let temp_dir = get_temp_dir();
     if !temp_dir.exists() {
         std::fs::create_dir_all(&temp_dir).unwrap();
@@ -61,7 +63,6 @@ async fn main() {
             temp_dir.display()
         ));
     }
-
     let target_dir = get_target_dir();
     if !target_dir.exists() {
         std::fs::create_dir_all(&target_dir).unwrap();
@@ -72,7 +73,6 @@ async fn main() {
             target_dir.display()
         ));
     }
-
     let report_dir = get_report_dir();
     if !report_dir.exists() {
         log::log("! Report directory not found");
@@ -84,11 +84,11 @@ async fn main() {
             report_dir.display()
         ));
     }
-
     if let Err(e) = check_and_download_rule_files().await {
         log::log(&format!("! Failed to download rule files: {}", e));
         report_error();
     }
+    // ... (end of no changes section)
 
     let processing_start_time = Instant::now();
 
@@ -119,6 +119,8 @@ async fn main() {
                     report_error();
                 }
 
+                // RESTORED: This call is needed to prevent the crash.
+                // It creates the file that a later step is checking for.
                 if let Err(e) = create_header_yaml(&target_dir) {
                     log::log(&format!("! Failed to create header.yaml: {}", e));
                     report_error();
@@ -134,15 +136,19 @@ async fn main() {
                     }
                 };
 
+                let eda_tool_enum = tool.clone();
+
                 match tool {
                     EDATool::Altium => {
-                        if let Err(e) = process_files_with_rule("altium_designer.yaml") {
+                        if let Err(e) =
+                            process_files_with_rule("altium_designer.yaml", &eda_tool_enum)
+                        {
                             log::log(&format!("! Altium processing failed: {}", e));
                             report_error();
                         }
                     }
                     EDATool::KiCad => {
-                        if let Err(e) = process_files_with_rule("kicad.yaml") {
+                        if let Err(e) = process_files_with_rule("kicad.yaml", &eda_tool_enum) {
                             log::log(&format!("! KiCad processing failed: {}", e));
                             report_error();
                         }
@@ -151,7 +157,8 @@ async fn main() {
                 }
 
                 validate_target_directory();
-                inject_headers();
+                // This call remains deleted as its job is done in the processor.
+                // inject_headers();
                 let output_path = package_target_dir(eda_type);
                 clear_directories();
 
@@ -164,6 +171,7 @@ async fn main() {
                     output_path.display()
                 ));
 
+                // ... (no changes in the final section)
                 let log_path = log::get_log_file_path();
                 if let Ok(entries) = std::fs::read_dir(log_path.parent().unwrap()) {
                     let log_count = entries.filter(|e| e.is_ok()).count();
