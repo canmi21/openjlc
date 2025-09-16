@@ -1,8 +1,8 @@
 /* src/processor.rs */
 
 use crate::config::{get_rule_dir, get_target_dir, get_temp_dir};
-use crate::gerber_modifier; // Import our new module
-use crate::identifier::EDATool; // We need to know which EDA we're processing
+use crate::gerber_modifier;
+use crate::identifier::EDATool;
 use crate::log;
 use fancy_regex::RegexBuilder;
 use serde_yaml;
@@ -57,13 +57,10 @@ fn process_single_file(
         ));
         return Ok(());
     }
-
-    // --- CORE LOGIC ---
-
-    // 1. Read the original file content
+    // Read the original file content
     let mut content = fs::read_to_string(src_path)?;
 
-    // 2. Inject the dynamic "EasyEDA" header
+    // Inject the dynamic "EasyEDA" header
     let now = chrono::Local::now();
     content = format!(
         "G04 EasyEDA Pro v2.2.42.2, {}*\nG04 Gerber Generator version 0.3*\n{}",
@@ -71,15 +68,15 @@ fn process_single_file(
         content.replace("\r\n", "\n")
     );
 
-    // 3. If it's from KiCad, apply the specific syntax fix
+    // If it's from KiCad, apply the specific syntax fix
     if matches!(eda_tool, EDATool::KiCad) {
         content = gerber_modifier::convert_kicad_aperture_format(content);
     }
 
-    // 4. Inject the unique MD5 hash aperture
+    // Inject the unique MD5 hash aperture
     content = gerber_modifier::add_hash_aperture_to_gerber(content, false)?;
 
-    // 5. Write the fully modified content to the destination file ONCE
+    // Write the fully modified content to the destination file ONCE
     fs::write(&dest_path, content)?;
 
     log::log(&format!(
@@ -91,7 +88,7 @@ fn process_single_file(
     Ok(())
 }
 
-// Helper function with filenames corrected to EXACTLY match TransJLC's JLC_STYLE
+// Helper function with filenames
 fn get_final_filename(logical_name: &str) -> String {
     match logical_name {
         "Gerber_TopSolderMaskLayer" => "Gerber_TopSolderMaskLayer.GTS".to_string(),
