@@ -9,11 +9,9 @@ use openjlc::config::{
 use openjlc::error::report_error;
 use openjlc::extractor::extract_zip_to_temp;
 use openjlc::identifier::{EDATool, identify_eda_files};
-// This is still not needed: use openjlc::injector::inject_headers;
 use openjlc::log;
 use openjlc::packager::package_target_dir;
 use openjlc::processor::process_files_with_rule;
-// RESTORED: We need create_header_yaml again to prevent the crash.
 use openjlc::utils::{create_header_yaml, create_pcb_order_file};
 use openjlc::validator::validate_target_directory;
 use rfd::MessageDialog;
@@ -119,8 +117,6 @@ async fn main() {
                     report_error();
                 }
 
-                // RESTORED: This call is needed to prevent the crash.
-                // It creates the file that a later step is checking for.
                 if let Err(e) = create_header_yaml(&target_dir) {
                     log::log(&format!("! Failed to create header.yaml: {}", e));
                     report_error();
@@ -171,7 +167,6 @@ async fn main() {
                     output_path.display()
                 ));
 
-                // ... (no changes in the final section)
                 let log_path = log::get_log_file_path();
                 if let Ok(entries) = std::fs::read_dir(log_path.parent().unwrap()) {
                     let log_count = entries.filter(|e| e.is_ok()).count();
