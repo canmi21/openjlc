@@ -2,7 +2,6 @@
 
 use md5::{Digest, Md5};
 use rand::Rng;
-// Restore the use of the standard regex library, as it is sufficient
 use regex::Regex;
 use std::io;
 
@@ -12,12 +11,9 @@ use std::io;
 pub fn convert_kicad_aperture_format(content: String) -> String {
     let lines: Vec<&str> = content.split('\n').collect();
     let mut result_lines = Vec::new();
-
-    // Use a very simple regex to match D-code
     let aperture_regex = Regex::new(r"(D\d{2,4}\*)").unwrap();
 
     for line in lines {
-        // Use simple string checks to skip lines that should not be modified
         if line.contains("%ADD") || line.contains("G54D") {
             result_lines.push(line.to_string());
         } else {
@@ -31,7 +27,6 @@ pub fn convert_kicad_aperture_format(content: String) -> String {
 }
 
 /// Add a hash aperture to the Gerber file as a file fingerprint.
-/// (This function’s logic is correct and does not need modification)
 pub fn add_hash_aperture_to_gerber(
     content: String,
     is_imported_pcb_doc: bool,
