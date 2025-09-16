@@ -40,6 +40,8 @@ notify-rust = "4.11"
 sys-info = "0.9"
 rfd = "0.15"
 webbrowser = "1.0"
+regex = "1"
+md-5 = "0.10"
 
 [lib]
 name = "openjlc"
