@@ -86,10 +86,7 @@ async fn main() {
         log::log(&format!("! Failed to download rule files: {}", e));
         report_error();
     }
-    // ... (end of no changes section)
-
     let processing_start_time = Instant::now();
-
     if let Some(file_path) = get_input_file_path() {
         log::log(&format!("> Processing file: '{}'", file_path.display()));
 
