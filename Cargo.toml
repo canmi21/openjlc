@@ -26,23 +26,6 @@ name       = "ZIP Archive"
 role       = "Viewer"
 extensions = ["zip"]
 
-[dependencies]
-chrono = "0.4"
-zip = "5"
-lazy_static = "1.4"
-rand = "0.9"
-reqwest = { version = "0.12", features = ["blocking", "json"] }
-tokio = { version = "1", features = ["full"] }
-serde = { version = "1.0", features = ["derive"] }
-serde_yaml = "0.9"
-fancy-regex = "0.16"
-notify-rust = "4.11"
-sys-info = "0.9"
-rfd = "0.15"
-webbrowser = "1.0"
-regex = "1"
-md-5 = "0.10"
-
 [lib]
 name = "openjlc"
 path = "src/lib.rs"
@@ -50,3 +33,20 @@ path = "src/lib.rs"
 [[bin]]
 name = "openjlc"
 path = "src/main.rs"
+
+[dependencies]
+chrono = "0.4"
+zip = "5"
+lazy_static = "1"
+rand = "0.9"
+reqwest = { version = "0.12", features = ["blocking", "json"] }
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+serde_yaml = "0.9"
+fancy-regex = "0.16"
+notify-rust = "4"
+sys-info = "0.9"
+rfd = "0.15"
+webbrowser = "1"
+regex = "1"
+md-5 = "0.10"
