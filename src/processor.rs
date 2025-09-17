@@ -1,25 +1,23 @@
 /* src/processor.rs */
 
 use crate::config::{get_rule_dir, get_target_dir, get_temp_dir};
-use crate::gerber_modifier;
+use crate::gerber_processor;
 use crate::identifier::EDATool;
 use crate::log;
 use fancy_regex::RegexBuilder;
+use rand::Rng;
 use serde_yaml;
 use std::collections::HashMap;
 use std::error::Error;
 use std::fs;
 use std::path::Path;
 
-// The function signature now accepts the identified EDATool
 pub fn process_files_with_rule(yaml_name: &str, eda_tool: &EDATool) -> Result<(), Box<dyn Error>> {
     let rule_path = get_rule_dir().join(yaml_name);
     let rule_content = fs::read_to_string(&rule_path)?;
     let rules: HashMap<String, String> = serde_yaml::from_str(&rule_content)?;
-
     let temp_dir = get_temp_dir();
     let target_dir = get_target_dir();
-
     for (logical_name, pattern) in rules {
         let regex = RegexBuilder::new(&pattern).case_insensitive(true).build()?;
 
@@ -47,7 +45,6 @@ fn process_single_file(
     let dest_name = get_final_filename(logical_name);
     let dest_path = target_dir.join(dest_name);
 
-    // Drill files are copied directly without modification
     if logical_name.contains("Drill") {
         fs::copy(src_path, &dest_path)?;
         log::log(&format!(
@@ -57,26 +54,36 @@ fn process_single_file(
         ));
         return Ok(());
     }
-    // Read the original file content
-    let mut content = fs::read_to_string(src_path)?;
 
-    // Inject the dynamic "EasyEDA" header
+    let mut content = fs::read_to_string(src_path)?;
+    let mut rng = rand::rng();
+    let name = if rng.random_bool(0.5) {
+        "EasyEDA Pro"
+    } else {
+        "EasyEDA"
+    };
+
+    let major = rng.random_range(2..=3);
+    let minor = rng.random_range(1..=5);
+    let patch = rng.random_range(1..=42);
+    let build = rng.random_range(0..=2);
+    let version = format!("v{}.{}.{}.{}", major, minor, patch, build);
+
+    // header
     let now = chrono::Local::now();
     content = format!(
-        "G04 EasyEDA Pro v2.2.42.2, {}*\nG04 Gerber Generator version 0.3*\n{}",
+        "G04 {} {}, {}*\nG04 Gerber Generator version 0.3*\n{}",
+        name,
+        version,
         now.format("%Y-%m-%d %H:%M:%S"),
         content.replace("\r\n", "\n")
     );
 
-    // If it's from KiCad, apply the specific syntax fix
     if matches!(eda_tool, EDATool::KiCad) {
-        content = gerber_modifier::convert_kicad_aperture_format(content);
+        content = gerber_processor::normalize_kicad_d_codes(content);
     }
 
-    // Inject the unique MD5 hash aperture
-    content = gerber_modifier::add_hash_aperture_to_gerber(content, false)?;
-
-    // Write the fully modified content to the destination file ONCE
+    content = gerber_processor::inject_fingerprint_into_gerber(content, false)?;
     fs::write(&dest_path, content)?;
 
     log::log(&format!(
@@ -88,7 +95,6 @@ fn process_single_file(
     Ok(())
 }
 
-// Helper function with filenames
 fn get_final_filename(logical_name: &str) -> String {
     match logical_name {
         "Gerber_TopSolderMaskLayer" => "Gerber_TopSolderMaskLayer.GTS".to_string(),
@@ -109,7 +115,6 @@ fn get_final_filename(logical_name: &str) -> String {
         "Drill_PTH_Through" => "Drill_PTH_Through.DRL".to_string(),
         "Drill_PTH_Through_Via" => "Drill_PTH_Through_Via.DRL".to_string(),
         "Drill_NPTH_Through" => "Drill_NPTH_Through.DRL".to_string(),
-        // Fallback for any other layer types, though unlikely to be hit with strict rules
         _ => format!("{}.{}", logical_name, "gbr"),
     }
 }
