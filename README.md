@@ -40,11 +40,36 @@ Feel free to try it using the following methods:
   <tr><td>📦 <b>Arch Linux AUR</b> <br> Arch Linux AUR 安装</td><td>Install via: <code>yay -S openjlc</code> <br> 通过： <code>yay -S openjlc</code> 安装</td></tr>
   <tr><td>❇️ <b>Cross-platform builds</b> <br> 跨平台构建</td><td>Prebuilt binaries for Linux, Windows, macOS available on <a href="https://github.com/canmi21/openjlc/releases">releases</a> <br> Linux、Windows、macOS 的预构建二进制文件可在 <a href="https://github.com/canmi21/openjlc/releases">releases</a> 获取</td></tr>
   <tr><td>⚡️ <b>Run directly</b> <br> 直接运行</td><td><code>openjlc file.zip or path_to_file/file.zip</code></td></tr>
-  <tr><td>🗂️ <b>Supported input formats</b> <br> 支持的输入格式</td><td>KiCad, Altium Designer, EasyEDA — and more on the way! <br> KiCad、Altium Designer、EasyEDA </td></tr>
+  <tr><td>🗂️ <b>Supported input formats</b> <br> 支持的输入格式</td><td>KiCad, Altium Designer, EasyEDA — and more on the way!</td></tr>
   <tr><td>🛠️ <b>Gerber analyzer</b> <br> Gerber 分析器</td><td>Auto label output file with <code>-{detected-eda}-L{layer}</code> <br> 使用 <code>-{detected-eda}-L{layer}</code> 自动标记输出文件</td></tr>
   <tr><td>🔄 <b>Fast updates</b> <br> 快速更新</td><td>Track latest changes via <a href="https://github.com/canmi21/openjlc/actions?query=event%3Aworkflow_dispatch+branch%3Amain+is%3Asuccess">ci</a> <br> 通过 <a href="https://github.com/canmi21/openjlc/actions?query=event%3Aworkflow_dispatch+branch%3Amain+is%3Asuccess">ci</a> 跟踪最新更改</td></tr>
   <tr><td>📣 <b>Contribute / Feedback</b> <br> 贡献 / 反馈</td><td>Create issues, pull requests, or just ⭐ the repo to support us! <br> 创建问题、拉取请求，或只是 ⭐ 仓库来支持我们！</td></tr>
 </table> 
+
+## 食用方式
+### 1. 通过 `cli` 使用
+打开终端输入
+```sh
+openjlc example.zip
+```
+这样会默认在当前目录下查找
+```sh
+openjlc /path/to/example.zip
+```
+或者指定路径查找
+
+### 2. 通过 `第三方` 事件触发器使用
+**Windows** 下使用注册表修改右键菜单，本质的就是代替你给文件执行了指令
+
+**macOS** 下使用 App bundle 方式自行编译签名，可以实现类似`打开方式`的劫持
+
+**macOS** 下可以使用智能文件夹 + Apple Script 实现某文件夹拖动即执行转换
+
+**Linux** 下可以使用就更多了 基于文件系统的 watch, 在某文件夹下找到 ZIP 类型文件的时候会尝试扫描列表判断是不是 Gerber
+
+(但是说实话你都用Linux了，开个终端好像不是更简单) 某些 Hyprland 甚至强制依赖快捷键终端
+
+
 
 ## ⚡️ Lightning-Fast Speed
 
@@ -103,6 +128,10 @@ On Windows, OpenJLC supports seamless right-click processing for `.zip` Gerber a
 ## 📦 Easy GUI Installer for Windows
 
 We offer a dedicated Windows GUI installer to simplify setup. With just a few clicks, you can install, update, or uninstall OpenJLC — all without touching the command line.
+
+请注意 **GUI** 版本的安装器已经废弃⚠️ 不保证未来可用，未来也不会再给 **Windows** 的任何系统做更新，任何来自 **Windows** 的兼容性文件都自己 **Ask AI**， 垃圾 **Windows** 什么时候死啊
+
+关于软件本体，也不会在 **Windows** 上测试，但是得益于这个软件开发的比较早了，横跨了我主力操作系统为 **Windows Linux macOS** 的三个阶段，所以理所应道的埋下了跨平台的种子，理论上虽然我没有测试，但是函数都有对应的 **crates** 维护好了，所以应该也能直接用
 
 <div align="center"> <p> <a href="https://github.com/canmi21/openjlc" target="_blank"> <img src="https://raw.githubusercontent.com/canmi21/openjlc/refs/heads/main/img/5E7ABC2AB8CA3DCA8EA4E872AECB30F0.webp" alt="Windows Installer - Step 1" width="49%"/> </a> <a href="https://github.com/canmi21/openjlc" target="_blank"> <img src="https://raw.githubusercontent.com/canmi21/openjlc/refs/heads/main/img/CA8D9D363777D6D970035852BEC043DB.webp" alt="Windows Installer - Step 2" width="49%"/> </a> <a href="https://github.com/canmi21/openjlc" target="_blank"> <img src="https://raw.githubusercontent.com/canmi21/openjlc/refs/heads/main/img/6BC1EECDD7A4D6699F5F127B3843FFED.webp" alt="Windows Installer - Step 3" width="99%"/> </a> </p> </div>
 
