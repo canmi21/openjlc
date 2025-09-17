@@ -1,1 +1,2 @@
-source "src/gerber_modifier.rs" licensed under the Apache License 2.0 by HalfSweet.
+This project includes code from "src/gerber_modifier.rs",
+licensed under the Apache License 2.0 by HalfSweet.
