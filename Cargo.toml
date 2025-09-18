@@ -10,7 +10,7 @@ repository = "https://github.com/canmi21/openjlc"
 homepage = "https://github.com/canmi21/openjlc"
 documentation = "https://github.com/canmi21/openjlc?tab=readme-ov-file"
 readme = "README.md"
-keywords = ["kicad","altium","openjlc", "fuckjlc", "transjlc"]
+keywords = ["kicad","altium","openjlc", "fuckjlc"]
 categories = ["command-line-utilities", "parsing", "development-tools"]
 
 [package.metadata.bundle]
