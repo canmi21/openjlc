@@ -23,20 +23,20 @@ jobs:
       version: ${{ steps.read.outputs.version }}
     steps:
       - uses: actions/checkout@v4
-
+      
       - name: Read Cargo.toml Version
         id: read
         shell: bash
         run: |
           VERSION=$(awk -F ' *= *' '/^version/ {gsub(/"/, "", $2); print $2; exit}' Cargo.toml)
           echo "version=$VERSION" >> $GITHUB_OUTPUT
-
+      
       - name: Setup Rust
         if: matrix.os == 'windows-latest'
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
-
+      
       - name: Cache Rust dependencies
         if: matrix.os == 'windows-latest'
         uses: actions/cache@v4
@@ -48,7 +48,7 @@ jobs:
           key: ${{ runner.os }}-rust-${{ matrix.target }}-${{ hashFiles('Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-rust-${{ matrix.target }}-
-
+      
       - name: Build
         if: matrix.os == 'windows-latest'
         shell: bash
@@ -56,13 +56,13 @@ jobs:
           cargo build --release --target ${{ matrix.target }}
           mkdir -p artifacts
           cp target/${{ matrix.target }}/release/openjlc.exe artifacts/openjlc-${{ matrix.target }}.exe
-
+      
       - name: Setup Go for Installer
         if: matrix.target == 'x86_64_i686-pc-installer'
         uses: actions/setup-go@v5
         with:
           go-version: 'stable'
-
+      
       - name: Cache Go modules
         if: matrix.target == 'x86_64_i686-pc-installer'
         uses: actions/cache@v4
@@ -72,7 +72,7 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('installer/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-
+      
       - name: Install Go dependencies and Mingw-w64
         if: matrix.target == 'x86_64_i686-pc-installer'
         shell: bash
@@ -81,7 +81,7 @@ jobs:
           sudo apt-get install -y mingw-w64
           go mod tidy
         working-directory: installer/
-
+      
       - name: Build Go Installer for Windows
         if: matrix.target == 'x86_64_i686-pc-installer'
         shell: bash
@@ -112,12 +112,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
-
+      
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
-
+      
       - name: Cache Rust dependencies
         uses: actions/cache@v4
         with:
@@ -128,12 +128,7 @@ jobs:
           key: ${{ runner.os }}-rust-${{ matrix.target }}-${{ hashFiles('Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-rust-${{ matrix.target }}-
-      - name: Install Linux dependencies
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libwayland-dev libxkbcommon-dev pkg-config
-
+      
       - name: Build
         shell: bash
         run: |
@@ -144,7 +139,7 @@ jobs:
           else
             cp target/${{ matrix.target }}/release/openjlc artifacts/openjlc-${{ matrix.target }}
           fi
-
+      
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -158,7 +153,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
-
+      
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
