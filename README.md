@@ -13,6 +13,14 @@
     <a href="https://github.com/canmi21/openjlc/stargazers"><img src="https://img.shields.io/github/stars/canmi21/openjlc?color=ffcb47&labelColor=black&style=flat-square&logo=github&label=Stars" /></a>
     <a href="https://github.com/canmi21/openjlc/releases"><img src="https://img.shields.io/github/downloads/canmi21/openjlc/total?color=9ac813&labelColor=black&logo=github&style=flat-square&label=Releases" /></a>
     <br />
+</div>
+
+### 项目现已经重构 请移步 [新组织](https://github.com/nextjlc)
+Web 版本 [NextJLC](https://github.com/nextjlc/nextjlc)
+CLI 版本查看 [TransJLC](https://github.com/HalfSweet/TransJLC)
+
+#### 以下为归档信息
+<div align="center">
     <br />
     <a href="https://github.com/canmi21/openjlc" target="_blank"><img src="https://raw.githubusercontent.com/canmi21/openjlc/refs/heads/main/img/21c27d0a834b09710c25047a6c2dc004.png" alt="MacOS" width="99%"/></a>
     <a href="https://github.com/canmi21/openjlc" target="_blank"><img src="https://raw.githubusercontent.com/canmi21/openjlc/refs/heads/main/img/2025-04-06-170618.webp" alt="Linux" width="49%"/></a>
@@ -40,7 +48,7 @@ Feel free to try it using the following methods:
   <tr><td>📣 <b>Contribute / Feedback</b></td><td>Create issues, pull requests, or just ⭐ the repo to support us!</td></tr>
 </table> 
 
-## ⚡️ Lightning-Fast Speed  
+## ⚡️ Lightning-Fast Speed
 Powered by Rust's high performance, OpenJLC can convert an 8-layer PCB from Altium in under 500ms.
 
 <div align="center">
@@ -49,7 +57,7 @@ Powered by Rust's high performance, OpenJLC can convert an 8-layer PCB from Alti
   </p>
 </div>
 
-## 🧩 Uniform Output Naming  
+## 🧩 Uniform Output Naming
 We provide powerful regular expression rules to auto-analyze and rename output files, giving you a clean and consistent output structure.
 
 <div align="center">
@@ -58,7 +66,7 @@ We provide powerful regular expression rules to auto-analyze and rename output f
   </p>
 </div>
 
-## 🛠️ Extra Drill File Handling  
+## 🛠️ Extra Drill File Handling
 Unlike other conversion tools, OpenJLC supports auto-detection and classification of drill files — no manual steps required.
 
 **Altium**
@@ -80,7 +88,7 @@ Drill_PTH_Through_Via_GBR: "(?i).*\\bVIA\\b.*\\.GBR$"
 Drill_NPTH_Through_GBR: "(?i).*\\bNPTH\\b.*\\.GBR$"
 ```
 
-## 🖱️ Right-Click Integration on Windows  
+## 🖱️ Right-Click Integration on Windows
 On Windows, OpenJLC supports seamless right-click processing for `.zip` Gerber archives. With just one click, you can get clean and correctly named outputs — even after processing by the Windows file system.
 
 <div align="center">
@@ -96,8 +104,8 @@ We offer a dedicated Windows GUI installer to simplify setup. With just a few cl
 <div align="center"> <p> <a href="https://github.com/canmi21/openjlc" target="_blank"> <img src="https://raw.githubusercontent.com/canmi21/openjlc/refs/heads/main/img/5E7ABC2AB8CA3DCA8EA4E872AECB30F0.webp" alt="Windows Installer - Step 1" width="49%"/> </a> <a href="https://github.com/canmi21/openjlc" target="_blank"> <img src="https://raw.githubusercontent.com/canmi21/openjlc/refs/heads/main/img/CA8D9D363777D6D970035852BEC043DB.webp" alt="Windows Installer - Step 2" width="49%"/> </a> <a href="https://github.com/canmi21/openjlc" target="_blank"> <img src="https://raw.githubusercontent.com/canmi21/openjlc/refs/heads/main/img/6BC1EECDD7A4D6699F5F127B3843FFED.webp" alt="Windows Installer - Step 3" width="99%"/> </a> </p> </div>
 
 ## ❓ FAQ
-**Q: PowerShell says `openjlc` is not recognized as a command?**   
-**A:** This usually means the OpenJLC installation path is not added to your system's environment variables.  
+**Q: PowerShell says `openjlc` is not recognized as a command?**
+**A:** This usually means the OpenJLC installation path is not added to your system's environment variables.
 Please follow the instructions shown in the image below to add it. Restart PowerShell after applying the changes.
 
 <div align="center">
@@ -108,8 +116,8 @@ Please follow the instructions shown in the image below to add it. Restart Power
   </p>
 </div>
 
-**Q: What if I'm using Linux or macOS?**  
-**A:** Make sure the Cargo binary directory (usually `$HOME/.cargo/bin`) is added to your shell's environment variables.  
+**Q: What if I'm using Linux or macOS?**
+**A:** Make sure the Cargo binary directory (usually `$HOME/.cargo/bin`) is added to your shell's environment variables.
 For example, if you're using `bash`, `zsh` or `fish`, you can add the following line to your `~/.bashrc`, `~/.zshrc` `~/.config/fish/config.fish` file:
 
 ```bash
@@ -119,7 +127,7 @@ Then reload your shell or run:
 ```bash
 source ~/.bashrc   # or source ~/.zshrc
 ```
-   
+
 If you're using fish shell, add the path like this:
 ```fish
 set -U fish_user_paths /home/canmi/.cargo/bin $fish_user_paths
@@ -130,14 +138,14 @@ source ~/.config/fish/config.fish
 ```
 
 ## ⭐ Contribute
-If you are just a user of OpenJLC, please give us a Star. If you’d like to participate in development, you can consider the following steps:  
-The main program is written in Rust:  
+If you are just a user of OpenJLC, please give us a Star. If you’d like to participate in development, you can consider the following steps:
+The main program is written in Rust:
 ```bash
 cargo run
 cargo build
 cargo install --path .
-```  
-The Windows installer is written in Go:  
+```
+The Windows installer is written in Go:
 ```bash
 GOOS=windows GOARCH=amd64 CGO_ENABLED=1 CC=x86_64-w64-mingw32-gcc go build -x -ldflags="-H=windowsgui" -o installer.exe
 ```
