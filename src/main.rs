@@ -9,6 +9,7 @@ use openjlc::config::{
 use openjlc::error::report_error;
 use openjlc::extractor::extract_zip_to_temp;
 use openjlc::identifier::{EDATool, identify_eda_files};
+use openjlc::injector::inject_headers;
 use openjlc::log;
 use openjlc::packager::package_target_dir;
 use openjlc::processor::process_files_with_rule;
@@ -50,7 +51,6 @@ async fn main() {
     log::log(&format!("+ OpenJLC v{} {}", version, timestamp));
     log::log(&format!("- OS: {} & Arch: {}", os, arch));
 
-    // ... (no changes in this section)
     let temp_dir = get_temp_dir();
     if !temp_dir.exists() {
         std::fs::create_dir_all(&temp_dir).unwrap();
@@ -61,6 +61,7 @@ async fn main() {
             temp_dir.display()
         ));
     }
+
     let target_dir = get_target_dir();
     if !target_dir.exists() {
         std::fs::create_dir_all(&target_dir).unwrap();
@@ -71,6 +72,7 @@ async fn main() {
             target_dir.display()
         ));
     }
+
     let report_dir = get_report_dir();
     if !report_dir.exists() {
         log::log("! Report directory not found");
@@ -82,11 +84,11 @@ async fn main() {
             report_dir.display()
         ));
     }
+
     if let Err(e) = check_and_download_rule_files().await {
         log::log(&format!("! Failed to download rule files: {}", e));
         report_error();
     }
-    // ... (end of no changes section)
 
     let processing_start_time = Instant::now();
 
@@ -132,19 +134,15 @@ async fn main() {
                     }
                 };
 
-                let eda_tool_enum = tool.clone();
-
                 match tool {
                     EDATool::Altium => {
-                        if let Err(e) =
-                            process_files_with_rule("altium_designer.yaml", &eda_tool_enum)
-                        {
+                        if let Err(e) = process_files_with_rule("altium_designer.yaml") {
                             log::log(&format!("! Altium processing failed: {}", e));
                             report_error();
                         }
                     }
                     EDATool::KiCad => {
-                        if let Err(e) = process_files_with_rule("kicad.yaml", &eda_tool_enum) {
+                        if let Err(e) = process_files_with_rule("kicad.yaml") {
                             log::log(&format!("! KiCad processing failed: {}", e));
                             report_error();
                         }
@@ -153,8 +151,7 @@ async fn main() {
                 }
 
                 validate_target_directory();
-                // This call remains deleted as its job is done in the processor.
-                // inject_headers();
+                inject_headers();
                 let output_path = package_target_dir(eda_type);
                 clear_directories();
 

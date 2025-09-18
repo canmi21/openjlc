@@ -1,120 +1,113 @@
 /* src/processor.rs */
 
 use crate::config::{get_rule_dir, get_target_dir, get_temp_dir};
-use crate::gerber_processor;
-use crate::identifier::EDATool;
+use crate::error::report_error;
 use crate::log;
 use fancy_regex::RegexBuilder;
-use rand::Rng;
 use serde_yaml;
 use std::collections::HashMap;
 use std::error::Error;
 use std::fs;
-use std::path::Path;
 
-pub fn process_files_with_rule(yaml_name: &str, eda_tool: &EDATool) -> Result<(), Box<dyn Error>> {
+pub fn process_files_with_rule(yaml_name: &str) -> Result<(), Box<dyn Error>> {
     let rule_path = get_rule_dir().join(yaml_name);
-    let rule_content = fs::read_to_string(&rule_path)?;
-    let rules: HashMap<String, String> = serde_yaml::from_str(&rule_content)?;
+    let rule_content = fs::read_to_string(&rule_path).map_err(|e| {
+        format!(
+            "! Failed to read rule file '{}': {}",
+            rule_path.display(),
+            e
+        )
+    })?;
+
+    let rules: HashMap<String, String> = serde_yaml::from_str(&rule_content)
+        .map_err(|e| format!("! Failed to parse YAML: {}", e))?;
+
     let temp_dir = get_temp_dir();
     let target_dir = get_target_dir();
-    for (logical_name, pattern) in rules {
-        let regex = RegexBuilder::new(&pattern).case_insensitive(true).build()?;
 
+    for (name, pattern) in rules {
+        let regex = RegexBuilder::new(&pattern)
+            .case_insensitive(true)
+            .build()
+            .map_err(|e| format!("! Invalid regex pattern '{}': {}", pattern, e))?;
+
+        let mut found_paths = Vec::new();
         for entry in fs::read_dir(&temp_dir)? {
-            let path = entry?.path();
+            let entry = entry?;
+            let path = entry.path();
             if path.is_file() {
                 if let Some(file_name) = path.file_name().and_then(|n| n.to_str()) {
                     if regex.is_match(file_name)? {
-                        process_single_file(&path, &target_dir, &logical_name, eda_tool)?;
+                        found_paths.push(path);
                     }
+                }
+            }
+        }
+
+        if found_paths.len() > 1 {
+            log::log(&format!(
+                "! Regex pattern '{}' matched multiple files: {:?}",
+                pattern, found_paths
+            ));
+            report_error();
+        }
+
+        if !found_paths.is_empty() {
+            let name_clone = name.clone();
+            for src_path in found_paths {
+                let ext = src_path
+                    .extension()
+                    .and_then(|e| e.to_str())
+                    .unwrap_or("")
+                    .to_uppercase();
+                let dest_name = if ext.is_empty() {
+                    name_clone.clone()
+                } else {
+                    format!("{}.{}", name_clone, ext)
+                };
+
+                let dest_path = target_dir.join(&dest_name);
+                fs::copy(&src_path, &dest_path)?;
+                log::log(&format!(
+                    "+ Linked '{}' -> '{}'",
+                    src_path.file_name().unwrap().to_str().unwrap(),
+                    dest_path.display()
+                ));
+
+                let new_name = match name_clone.as_str() {
+                    "Gerber_TopSolderMaskLayer" => "Gerber_TopSolderMaskLayer.GTS",
+                    "Gerber_TopSilkscreenLayer" => "Gerber_TopSilkscreenLayer.GTO",
+                    "Gerber_TopPasteMaskLayer" => "Gerber_TopPasteMaskLayer.GTP",
+                    "Gerber_TopLayer" => "Gerber_TopLayer.GTL",
+                    "Gerber_InnerLayer2" => "Gerber_InnerLayer2.G2",
+                    "Gerber_InnerLayer1" => "Gerber_InnerLayer1.G1",
+                    "Gerber_InnerLayer3" => "Gerber_InnerLayer3.G3",
+                    "Gerber_InnerLayer4" => "Gerber_InnerLayer4.G4",
+                    "Gerber_InnerLayer5" => "Gerber_InnerLayer5.G5",
+                    "Gerber_InnerLayer6" => "Gerber_InnerLayer6.G6",
+                    "Gerber_BottomSolderMaskLayer" => "Gerber_BottomSolderMaskLayer.GBS",
+                    "Gerber_BottomSilkscreenLayer" => "Gerber_BottomSilkscreenLayer.GBP",
+                    "Gerber_BottomPasteMaskLayer" => "Gerber_BottomPasteMaskLayer.GPB",
+                    "Gerber_BottomLayer" => "Gerber_BottomLayer.GBL",
+                    "Gerber_BoardOutlineLayer" => "Gerber_BoardOutlineLayer.GM13",
+                    "Drill_PTH_Through" => "Drill_PTH_Through.DRL",
+                    "Drill_PTH_Through_Via" => "Drill_PTH_Through_Via.DRL",
+                    "Drill_NPTH_Through" => "Drill_NPTH_Through.DRL",
+                    _ => dest_name.as_str(),
+                };
+
+                if new_name != dest_name.as_str() {
+                    let new_dest_path = target_dir.join(new_name);
+                    fs::rename(&dest_path, &new_dest_path)?;
+                    log::log(&format!(
+                        "+ Match '{}' -> '{}'",
+                        dest_path.display(),
+                        new_dest_path.display()
+                    ));
                 }
             }
         }
     }
 
     Ok(())
-}
-
-fn process_single_file(
-    src_path: &Path,
-    target_dir: &Path,
-    logical_name: &str,
-    eda_tool: &EDATool,
-) -> Result<(), Box<dyn Error>> {
-    let dest_name = get_final_filename(logical_name);
-    let dest_path = target_dir.join(dest_name);
-
-    if logical_name.contains("Drill") {
-        fs::copy(src_path, &dest_path)?;
-        log::log(&format!(
-            "+ Copied '{}' -> '{}'",
-            src_path.file_name().unwrap().to_str().unwrap(),
-            dest_path.display()
-        ));
-        return Ok(());
-    }
-
-    let mut content = fs::read_to_string(src_path)?;
-    let mut rng = rand::rng();
-    let name = if rng.random_bool(0.5) {
-        "EasyEDA Pro"
-    } else {
-        "EasyEDA"
-    };
-
-    let major = rng.random_range(2..=3);
-    let minor = rng.random_range(1..=5);
-    let patch = rng.random_range(1..=42);
-    let build = rng.random_range(0..=2);
-    let version = format!("v{}.{}.{}.{}", major, minor, patch, build);
-
-    // header
-    let now = chrono::Local::now();
-    content = format!(
-        "G04 {} {}, {}*\nG04 Gerber Generator version 0.3*\n{}",
-        name,
-        version,
-        now.format("%Y-%m-%d %H:%M:%S"),
-        content.replace("\r\n", "\n")
-    );
-
-    if matches!(eda_tool, EDATool::KiCad) {
-        content = gerber_processor::normalize_kicad_d_codes(content);
-    }
-
-    content = gerber_processor::inject_fingerprint_into_gerber(content, false)?;
-    fs::write(&dest_path, content)?;
-
-    log::log(&format!(
-        "+ Processed '{}' -> '{}'",
-        src_path.file_name().unwrap().to_str().unwrap(),
-        dest_path.display()
-    ));
-
-    Ok(())
-}
-
-fn get_final_filename(logical_name: &str) -> String {
-    match logical_name {
-        "Gerber_TopSolderMaskLayer" => "Gerber_TopSolderMaskLayer.GTS".to_string(),
-        "Gerber_TopSilkscreenLayer" => "Gerber_TopSilkscreenLayer.GTO".to_string(),
-        "Gerber_TopPasteMaskLayer" => "Gerber_TopPasteMaskLayer.GTP".to_string(),
-        "Gerber_TopLayer" => "Gerber_TopLayer.GTL".to_string(),
-        "Gerber_InnerLayer1" => "Gerber_InnerLayer1.G1".to_string(),
-        "Gerber_InnerLayer2" => "Gerber_InnerLayer2.G2".to_string(),
-        "Gerber_InnerLayer3" => "Gerber_InnerLayer3.G3".to_string(),
-        "Gerber_InnerLayer4" => "Gerber_InnerLayer4.G4".to_string(),
-        "Gerber_InnerLayer5" => "Gerber_InnerLayer5.G5".to_string(),
-        "Gerber_InnerLayer6" => "Gerber_InnerLayer6.G6".to_string(),
-        "Gerber_BottomSolderMaskLayer" => "Gerber_BottomSolderMaskLayer.GBS".to_string(),
-        "Gerber_BottomSilkscreenLayer" => "Gerber_BottomSilkscreenLayer.GBO".to_string(),
-        "Gerber_BottomPasteMaskLayer" => "Gerber_BottomPasteMaskLayer.GBP".to_string(),
-        "Gerber_BottomLayer" => "Gerber_BottomLayer.GBL".to_string(),
-        "Gerber_BoardOutlineLayer" => "Gerber_BoardOutlineLayer.GKO".to_string(),
-        "Drill_PTH_Through" => "Drill_PTH_Through.DRL".to_string(),
-        "Drill_PTH_Through_Via" => "Drill_PTH_Through_Via.DRL".to_string(),
-        "Drill_NPTH_Through" => "Drill_NPTH_Through.DRL".to_string(),
-        _ => format!("{}.{}", logical_name, "gbr"),
-    }
 }
